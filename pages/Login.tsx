@@ -19,13 +19,17 @@ export const Login: React.FC = () => {
   const principles = Array.from(new Set(usersList.map(u => u.principle))).filter(Boolean);
   const supervisors = usersList.filter(u => u.role === UserRole.SUPERVISOR);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (role) {
       login(role, principle, supervisorName);
-      console.log("[Login] User logged in, calling refreshData...");
-      await refreshData(); // Memuat data dari Google Sheets setelah login
+      // Navigate dulu ke dashboard, baru fetch data di background
       navigate('/dashboard');
+      console.log("[Login] User logged in, navigating to dashboard...");
+      // Fetch data setelah navigate (non-blocking)
+      setTimeout(() => {
+        refreshData().catch(err => console.error("[Login] Error fetching data:", err));
+      }, 100);
     }
   };
 
