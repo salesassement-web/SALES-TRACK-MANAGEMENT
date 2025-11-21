@@ -1,0 +1,5 @@
+{
+  "name": "Sales Management Tracker",
+  "description": "A comprehensive 360-degree sales team evaluation system featuring multi-role scoring (Supervisor, Admin/Cashier, HRD), real-time analytics dashboards, and automated performance classification.",
+  "requestFramePermissions": []
+}
