@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../src/context/AppContext';
 import { LayoutDashboard, FileText, LogOut, Briefcase, Users, UserCog, Layers, X, CheckSquare, ClipboardList, Settings, DatabaseBackup, Shield, Wifi, WifiOff, Loader2, RefreshCw } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserRole } from '../types';

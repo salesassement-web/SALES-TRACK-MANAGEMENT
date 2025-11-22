@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../src/context/AppContext';
 import { UserRole, User } from '../types';
 import { Trash2, Edit2, Plus, X, Save, Upload } from 'lucide-react';
 import { Avatar } from '../components/Avatar';

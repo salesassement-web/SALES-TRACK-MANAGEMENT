@@ -2,7 +2,7 @@
 import { Evaluation, SalesPerson, Task, User } from '../types';
 
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBV8WDVEVfg8vPw627z8VrlBA7159FZzLVoekgjm38ry3Fnk5UkhTWmMBNMNsPic2J/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuB6wXz2QMWO2w8mf4hZATFgwpvGBmIvv82pugjA2XraiZy-U_EkreZGlmSyHdGjpB/exec";
 
 export interface AppData {
   users: User[];
@@ -28,7 +28,7 @@ export const googleSheetService = {
       const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&t=${Date.now()}`);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} `);
       }
 
       const json = await response.json();
@@ -49,22 +49,22 @@ export const googleSheetService = {
    * Save an Evaluation to Google Sheets
    */
   async saveEvaluation(evaluation: Evaluation): Promise<boolean> {
-    if (!GOOGLE_SCRIPT_URL) return true;
-
     try {
-      // Use no-cors to avoid CORS issues since Apps Script text/plain response is opaque
-      await fetch(`${GOOGLE_SCRIPT_URL}?action=saveEvaluation`, {
+      console.log('[saveEvaluation] Attempting to save evaluation:', evaluation);
+
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=saveEvaluation`, {
         method: 'POST',
-        body: JSON.stringify({ ...evaluation, scores: evaluation.scores }),
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'text/plain'
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(evaluation)
       });
 
+      console.log('[saveEvaluation] Response status:', response.status);
+      console.log('[saveEvaluation] Evaluation saved successfully');
       return true;
     } catch (error) {
-      console.error("Failed to save evaluation", error);
+      console.error('[saveEvaluation] Failed to save evaluation:', error);
+      console.error('[saveEvaluation] Evaluation data:', evaluation);
       return false;
     }
   },
@@ -81,7 +81,7 @@ export const googleSheetService = {
         body: JSON.stringify(task),
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain'
+          'Content-Type': 'application/json'
         }
       });
       return true;
@@ -103,7 +103,7 @@ export const googleSheetService = {
         body: JSON.stringify({ principle }),
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain'
+          'Content-Type': 'application/json'
         }
       });
       return true;
@@ -125,7 +125,7 @@ export const googleSheetService = {
         body: JSON.stringify({ principle }),
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain'
+          'Content-Type': 'application/json'
         }
       });
       return true;
@@ -147,7 +147,7 @@ export const googleSheetService = {
         body: JSON.stringify(user),
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain'
+          'Content-Type': 'application/json'
         }
       });
       return true;

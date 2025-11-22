@@ -142,6 +142,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         principle
       });
     }
+
+    // Ensure data is fresh from Google Sheets upon login
+    if (USE_GOOGLE_SHEETS) {
+      refreshData();
+    }
   };
 
   const logout = () => setCurrentUser(null);
@@ -171,62 +176,70 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateScore = (salesId: string, month: number, year: number, newScores: Partial<ScoreData>) => {
-    setEvaluations(prev => {
-      const existingIndex = prev.findIndex(e => e.salesId === salesId && e.month === month && e.year === year);
+    // 1. Calculate updated evaluation based on current state
+    const existingIndex = evaluations.findIndex(e => e.salesId === salesId && e.month === month && e.year === year);
+    let updatedEvaluation: Evaluation;
 
-      let updatedEvaluation: Evaluation;
+    const checkSectionComplete = (section: 'supervisor' | 'kasir' | 'hrd', scores: Partial<ScoreData>) => {
+      return kpiConfig[section].criteria.every(c => scores[c.key] !== undefined && scores[c.key] !== null);
+    };
 
-      const checkSectionComplete = (section: 'supervisor' | 'kasir' | 'hrd', scores: Partial<ScoreData>) => {
-        return kpiConfig[section].criteria.every(c => scores[c.key] !== undefined && scores[c.key] !== null);
+    if (existingIndex >= 0) {
+      const existing = evaluations[existingIndex];
+      const updatedScores = { ...existing.scores, ...newScores };
+      const { score, status } = calculateFinalScore(updatedScores);
+
+      const spvComplete = checkSectionComplete('supervisor', updatedScores);
+      const kasirComplete = checkSectionComplete('kasir', updatedScores);
+      const hrdComplete = checkSectionComplete('hrd', updatedScores);
+
+      updatedEvaluation = {
+        ...existing,
+        scores: updatedScores,
+        supervisorRated: existing.supervisorRated || spvComplete,
+        kasirRated: existing.kasirRated || kasirComplete,
+        hrdRated: existing.hrdRated || hrdComplete,
+        finalScore: parseFloat(score.toFixed(2)),
+        status: (spvComplete && kasirComplete && hrdComplete) ? status : 'PENDING'
       };
+    } else {
+      const updatedScores = { ...newScores };
+      const { score, status } = calculateFinalScore(updatedScores);
 
-      if (existingIndex >= 0) {
-        const existing = prev[existingIndex];
-        const updatedScores = { ...existing.scores, ...newScores };
-        const { score, status } = calculateFinalScore(updatedScores);
+      // Check if sections are complete (for new evaluation, likely false unless all data provided at once)
+      const spvComplete = checkSectionComplete('supervisor', updatedScores);
+      const kasirComplete = checkSectionComplete('kasir', updatedScores);
+      const hrdComplete = checkSectionComplete('hrd', updatedScores);
 
-        const spvComplete = checkSectionComplete('supervisor', updatedScores);
-        const kasirComplete = checkSectionComplete('kasir', updatedScores);
-        const hrdComplete = checkSectionComplete('hrd', updatedScores);
+      updatedEvaluation = {
+        salesId,
+        month,
+        year,
+        scores: updatedScores,
+        supervisorRated: spvComplete,
+        kasirRated: kasirComplete,
+        hrdRated: hrdComplete,
+        finalScore: parseFloat(score.toFixed(2)),
+        status: (spvComplete && kasirComplete && hrdComplete) ? status : 'PENDING'
+      };
+    }
 
-        updatedEvaluation = {
-          ...existing,
-          scores: updatedScores,
-          supervisorRated: existing.supervisorRated || spvComplete,
-          kasirRated: existing.kasirRated || kasirComplete,
-          hrdRated: existing.hrdRated || hrdComplete,
-          finalScore: parseFloat(score.toFixed(2)),
-          status: (spvComplete && kasirComplete && hrdComplete) ? status : 'PENDING'
-        };
-
-        const newEvaluations = [...prev];
-        newEvaluations[existingIndex] = updatedEvaluation;
-
-        // Sync to Google Sheet
-        if (USE_GOOGLE_SHEETS) googleSheetService.saveEvaluation(updatedEvaluation);
-
-        return newEvaluations;
+    // 2. Update State
+    setEvaluations(prev => {
+      const idx = prev.findIndex(e => e.salesId === salesId && e.month === month && e.year === year);
+      if (idx >= 0) {
+        const newArr = [...prev];
+        newArr[idx] = updatedEvaluation;
+        return newArr;
       } else {
-        const updatedScores = { ...newScores };
-        const { score, status } = calculateFinalScore(updatedScores);
-        updatedEvaluation = {
-          salesId,
-          month,
-          year,
-          scores: updatedScores,
-          supervisorRated: false,
-          kasirRated: false,
-          hrdRated: false,
-          finalScore: parseFloat(score.toFixed(2)),
-          status: 'PENDING'
-        };
-
-        // Sync to Google Sheet
-        if (USE_GOOGLE_SHEETS) googleSheetService.saveEvaluation(updatedEvaluation);
-
         return [...prev, updatedEvaluation];
       }
     });
+
+    // 3. Save to Google Sheets (Side Effect)
+    if (USE_GOOGLE_SHEETS) {
+      googleSheetService.saveEvaluation(updatedEvaluation);
+    }
   };
 
   const getEvaluation = (salesId: string, month: number, year: number) => {

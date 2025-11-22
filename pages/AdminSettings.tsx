@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../src/context/AppContext';
 import { ThemeColor, KPICriteria } from '../types';
 import { Save, Layout, Sliders, RefreshCw, Info, Plus, Trash2 } from 'lucide-react';
 

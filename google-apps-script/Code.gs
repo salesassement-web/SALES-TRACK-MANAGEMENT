@@ -17,6 +17,7 @@ const SHEET_NAMES = {
   SALES: 'Sales',
   EVALUATIONS: 'Evaluations',
   TASKS: 'Tasks',
+  SUPERVISORS: 'supervisors',
   PRINCIPLES: 'Principles'
 };
 
@@ -507,6 +508,10 @@ function setupInitialData() {
   getOrCreateSheet(ss, SHEET_NAMES.TASKS, [
     'id', 'supervisorId', 'title', 'description', 'taskDate', 'dueDate',
     'priority', 'status', 'timeIn', 'timeOut', 'attachment', 'approvalStatus'
+  ]);
+
+  getOrCreateSheet(ss, SHEET_NAMES.SUPERVISORS, [
+    'id', 'fullName', 'principle', 'phoneNumber', 'email'
   ]);
   
   const principlesSheet = getOrCreateSheet(ss, SHEET_NAMES.PRINCIPLES, ['principle']);

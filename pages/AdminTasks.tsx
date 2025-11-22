@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../src/context/AppContext';
 import { TaskStatus, TaskPriority } from '../types';
-import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer, UserCog } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
 export const AdminTasks: React.FC = () => {
@@ -104,7 +104,14 @@ export const AdminTasks: React.FC = () => {
                 {/* --- SUMMARY CARDS --- */}
                 <div className="print-section print-no-break">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">1. Executive Summary</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                            <p className="text-sm font-bold text-slate-400 uppercase">Total SPV</p>
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-3xl md:text-4xl font-bold text-indigo-600">{usersList.filter(u => u.role === 'SUPERVISOR').length}</h3>
+                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg no-print"><UserCog size={24} /></div>
+                            </div>
+                        </div>
                         <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
                             <p className="text-sm font-bold text-slate-400 uppercase">Total</p>
                             <div className="flex justify-between items-center">

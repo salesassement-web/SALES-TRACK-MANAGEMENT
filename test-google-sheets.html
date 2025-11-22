@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Connection Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result.loading {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .result h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .result pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status-badge.online {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.offline {
+            background: #dc3545;
+            color: white;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box h4 {
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔗 Google Sheets Connection Test</h1>
+        <p class="subtitle">Test koneksi ke Google Apps Script deployment Anda</p>
+
+        <div class="info-box">
+            <h4>📋 Current Configuration</h4>
+            <p><strong>Spreadsheet ID:</strong> 1hvpLdDk9AwWK5AZcL6Tuo3RnOzZgqhmuzOjBN6pZRko</p>
+            <p><strong>Default URL:</strong>
+                https://script.google.com/macros/s/AKfycbzHIxm8LJ90JtvdI_gKW3clIkx5KAMHLUt6pRJHJih9RMb5mEzSNQRUPNpCchczxxH/exec
+            </p>
+        </div>
+
+        <label for="scriptUrl" style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+            Google Apps Script Deployment URL:
+        </label>
+        <input type="text" id="scriptUrl" class="url-input"
+            placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
+            value="https://script.google.com/macros/s/AKfycbzHIxm8LJ90JtvdI_gKW3clIkx5KAMHLUt6pRJHJih9RMb5mEzSNQRUPNpCchczxxH/exec">
+
+        <button onclick="testConnection()" id="testBtn">
+            🚀 Test Connection
+        </button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const url = document.getElementById('scriptUrl').value.trim();
+            const resultDiv = document.getElementById('result');
+            const testBtn = document.getElementById('testBtn');
+
+            if (!url) {
+                alert('Please enter a Google Apps Script URL');
+                return;
+            }
+
+            // Show loading
+            resultDiv.className = 'result loading';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<h3>⏳ Testing Connection...</h3><p>Fetching data from Google Sheets...</p>';
+            testBtn.disabled = true;
+
+            try {
+                console.log('Fetching from:', url);
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors' // Required for Google Apps Script
+                });
+
+                // Note: With no-cors, we can't read the response
+                // But if fetch succeeds without error, connection is OK
+
+                // Try to fetch again with a different approach to get actual data
+                const testResponse = await fetch(url);
+                const data = await testResponse.json();
+
+                // Success
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Connection Successful!</h3>
+                    <span class="status-badge online">ONLINE & SYNCED</span>
+                    <p style="margin-top: 15px;"><strong>Data Retrieved:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <p style="margin-top: 15px;">
+                        <strong>Next Steps:</strong><br>
+                        1. ✅ Google Sheets is connected<br>
+                        2. ✅ Update this URL in <code>src/services/googleSheetService.ts</code><br>
+                        3. ✅ Restart dev server: <code>npm run dev</code><br>
+                        4. ✅ Refresh your application
+                    </p>
+                `;
+
+            } catch (error) {
+                // Error
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Connection Failed</h3>
+                    <span class="status-badge offline">OFFLINE</span>
+                    <p style="margin-top: 15px;"><strong>Error:</strong></p>
+                    <pre>${error.message}</pre>
+                    <p style="margin-top: 15px;">
+                        <strong>Possible Causes:</strong><br>
+                        1. ❌ Google Apps Script belum di-deploy<br>
+                        2. ❌ Deployment URL salah<br>
+                        3. ❌ "Who has access" bukan "Anyone"<br>
+                        4. ❌ CORS issue (normal untuk no-cors mode)<br>
+                        <br>
+                        <strong>Solutions:</strong><br>
+                        1. Verify deployment di Apps Script<br>
+                        2. Re-deploy dengan "Who has access" = Anyone<br>
+                        3. Copy deployment URL yang benar<br>
+                        4. Jika error CORS, coba test di aplikasi langsung
+                    </p>
+                `;
+            } finally {
+                testBtn.disabled = false;
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded. Ready to test connection.');
+        });
+    </script>
+</body>
+
+</html>
