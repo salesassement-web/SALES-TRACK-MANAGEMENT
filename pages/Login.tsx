@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { UserRole } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, UserPlus } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const { login, usersList, refreshData } = useApp();
+  const { login, usersList, refreshData, currentUser } = useApp();
   const navigate = useNavigate();
 
   const [role, setRole] = useState<UserRole | ''>('');
   const [principle, setPrinciple] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const roles = Object.values(UserRole);
 
@@ -19,17 +20,25 @@ export const Login: React.FC = () => {
   const principles = Array.from(new Set(usersList.map(u => u.principle))).filter(Boolean);
   const supervisors = usersList.filter(u => u.role === UserRole.SUPERVISOR);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (role) {
-      login(role, principle, supervisorName);
-      // Navigate dulu ke dashboard, baru fetch data di background
+  // Navigate to dashboard after currentUser is set
+  useEffect(() => {
+    if (isLoggingIn && currentUser) {
+      console.log("[Login] User state updated, navigating to dashboard...");
       navigate('/dashboard');
-      console.log("[Login] User logged in, navigating to dashboard...");
-      // Fetch data setelah navigate (non-blocking)
+      setIsLoggingIn(false);
+      // Fetch data in background after navigation
       setTimeout(() => {
         refreshData().catch(err => console.error("[Login] Error fetching data:", err));
       }, 100);
+    }
+  }, [currentUser, isLoggingIn, navigate, refreshData]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (role) {
+      console.log("[Login] Initiating login...");
+      setIsLoggingIn(true);
+      login(role, principle, supervisorName);
     }
   };
 

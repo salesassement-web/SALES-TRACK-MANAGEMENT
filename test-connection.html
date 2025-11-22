@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Google Apps Script Connection Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Connection Diagnostic</h1>
+
+    <div id="config">
+        <h3>Configuration</h3>
+        <p><strong>URL:</strong> <span id="urlDisplay"></span></p>
+    </div>
+
+    <div id="testArea">
+        <button onclick="runTest()">Run Connection Test</button>
+    </div>
+
+    <div id="results" style="margin-top: 20px;"></div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBV8WDVEVfg8vPw627z8VrlBA7159FZzLVoekgjm38ry3Fnk5UkhTWmMBNMNsPic2J/exec";
+
+        document.getElementById('urlDisplay').textContent = SCRIPT_URL;
+
+        async function runTest() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status loading">Testing connection...</div>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${SCRIPT_URL}?action=getData&t=${startTime}`);
+                const endTime = Date.now();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                }
+
+                const text = await response.text();
+                let json;
+                try {
+                    json = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Failed to parse JSON. Response might be HTML (error page). Raw response: " + text.substring(0, 100) + "...");
+                }
+
+                if (json.status === 'success') {
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            <strong>SUCCESS!</strong> Connection established in ${endTime - startTime}ms.
+                        </div>
+                        <h4>Data Received:</h4>
+                        <pre>${JSON.stringify(json.data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            <strong>API ERROR:</strong> The script returned an error status.
+                        </div>
+                        <pre>${JSON.stringify(json, null, 2)}</pre>
+                    `;
+                }
+
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>CONNECTION FAILED:</strong> ${error.message}
+                    </div>
+                    <p>Possible causes:</p>
+                    <ul>
+                        <li><strong>CORS Error:</strong> Browser blocked the request. (Check console F12)</li>
+                        <li><strong>Deployment URL:</strong> The URL might be wrong or old.</li>
+                        <li><strong>Permissions:</strong> "Who has access" must be "Anyone".</li>
+                    </ul>
+                `;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+
+</html>

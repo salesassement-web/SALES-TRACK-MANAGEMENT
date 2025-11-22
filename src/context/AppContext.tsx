@@ -237,30 +237,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addUser = (user: Omit<User, 'id'>) => {
     const newUser = { ...user, id: `U${Date.now()}` };
     setUsersList(prev => [...prev, newUser]);
+    if (USE_GOOGLE_SHEETS) googleSheetService.saveUser(newUser);
   };
   const updateUser = (updatedUser: User) => {
     setUsersList(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    if (USE_GOOGLE_SHEETS) googleSheetService.saveUser(updatedUser);
   };
   const deleteUser = (id: string) => {
     setUsersList(prev => prev.filter(u => u.id !== id));
+    if (USE_GOOGLE_SHEETS) googleSheetService.deleteUser(id);
   };
   const addSalesPerson = (sales: Omit<SalesPerson, 'id'>) => {
     const newSales = { ...sales, id: `S${Date.now()}` };
     setSalesList(prev => [...prev, newSales]);
+    if (USE_GOOGLE_SHEETS) googleSheetService.saveSalesPerson(newSales);
   };
   const updateSalesPerson = (updatedSales: SalesPerson) => {
     setSalesList(prev => prev.map(s => s.id === updatedSales.id ? updatedSales : s));
+    if (USE_GOOGLE_SHEETS) googleSheetService.saveSalesPerson(updatedSales);
   };
   const deleteSalesPerson = (id: string) => {
     setSalesList(prev => prev.filter(s => s.id !== id));
+    if (USE_GOOGLE_SHEETS) googleSheetService.deleteSalesPerson(id);
   };
   const addPrinciple = (name: string) => {
     if (!principles.includes(name)) {
       setPrinciples(prev => [...prev, name]);
+      if (USE_GOOGLE_SHEETS) googleSheetService.addPrinciple(name);
     }
   };
   const deletePrinciple = (name: string) => {
     setPrinciples(prev => prev.filter(p => p !== name));
+    if (USE_GOOGLE_SHEETS) googleSheetService.deletePrinciple(name);
   };
   const addTask = (task: Omit<Task, 'id'>) => {
     const newTask = { ...task, id: `T${Date.now()}` };

@@ -2,7 +2,7 @@
 import { Evaluation, SalesPerson, Task, User } from '../types';
 
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkDMHALiN7ZvbDPm2UtddvC-8llq6r-f6QnXKT4QbySFL4VbDWLwzGKfpj9nDHyM0/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBV8WDVEVfg8vPw627z8VrlBA7159FZzLVoekgjm38ry3Fnk5UkhTWmMBNMNsPic2J/exec";
 
 export interface AppData {
   users: User[];
@@ -87,6 +87,138 @@ export const googleSheetService = {
       return true;
     } catch (error) {
       console.error("Failed to save task", error);
+      return false;
+    }
+  },
+
+  /**
+   * Add a Principle to Google Sheets
+   */
+  async addPrinciple(principle: string): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=savePrinciple`, {
+        method: 'POST',
+        body: JSON.stringify({ principle }),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to save principle", error);
+      return false;
+    }
+  },
+
+  /**
+   * Delete a Principle from Google Sheets
+   */
+  async deletePrinciple(principle: string): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=deletePrinciple`, {
+        method: 'POST',
+        body: JSON.stringify({ principle }),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete principle", error);
+      return false;
+    }
+  },
+
+  /**
+   * Save a User to Google Sheets
+   */
+  async saveUser(user: User): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=saveUser`, {
+        method: 'POST',
+        body: JSON.stringify(user),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to save user", error);
+      return false;
+    }
+  },
+
+  /**
+   * Delete a User from Google Sheets
+   */
+  async deleteUser(id: string): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=deleteUser`, {
+        method: 'POST',
+        body: JSON.stringify({ id }),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete user", error);
+      return false;
+    }
+  },
+
+  /**
+   * Save a SalesPerson to Google Sheets
+   */
+  async saveSalesPerson(sales: SalesPerson): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=saveSalesPerson`, {
+        method: 'POST',
+        body: JSON.stringify(sales),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to save sales person", error);
+      return false;
+    }
+  },
+
+  /**
+   * Delete a SalesPerson from Google Sheets
+   */
+  async deleteSalesPerson(id: string): Promise<boolean> {
+    if (!GOOGLE_SCRIPT_URL) return true;
+
+    try {
+      await fetch(`${GOOGLE_SCRIPT_URL}?action=deleteSalesPerson`, {
+        method: 'POST',
+        body: JSON.stringify({ id }),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to delete sales person", error);
       return false;
     }
   }
