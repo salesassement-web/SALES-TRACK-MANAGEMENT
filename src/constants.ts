@@ -7,10 +7,10 @@ const TOMORROW = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
 // 1. Define All Principles (Requested List)
 const RAW_PRINCIPLES = [
-  'KALBE', 'UNILEVER', 'KENVEU', 'PERFETTI', 
-  'DUA KELINCI', 'WALLS', 'BELLFOODS', 'ULI - FS', 
-  'ATC FFI', 'FFI', 'GAGA', 'WALLS - BINJAI', 
-  'FFI - BINJAI', 'MAKUKU'
+    'KALBE', 'UNILEVER', 'KENVEU', 'PERFETTI',
+    'DUA KELINCI', 'WALLS', 'BELLFOODS', 'ULI - FS',
+    'ATC FFI', 'FFI', 'GAGA', 'WALLS BINJAI',
+    'FFI BINJAI', 'MAKUKU'
 ];
 
 export const PRINCIPLES = [...RAW_PRINCIPLES, 'ALL SANCHO', 'ALL PRINCIPLE'];
@@ -32,7 +32,7 @@ const genId = (prefix: string, idx: string | number) => `${prefix}_${idx}`;
 const getScoresForStatus = (status: 'STAY' | 'LEAVE'): ScoreData => {
     const min = status === 'STAY' ? 80 : 45;
     const max = status === 'STAY' ? 98 : 70;
-    
+
     const rnd = () => Math.floor(Math.random() * (max - min + 1)) + min;
 
     return {
@@ -47,7 +47,7 @@ RAW_PRINCIPLES.forEach((principle, pIdx) => {
     // A. Create Supervisor (1 per Principle)
     const spvName = `SPV ${principle}`;
     const spvId = genId('U_SPV', pIdx);
-    
+
     generatedUsers.push({
         id: spvId,
         fullName: spvName,
@@ -81,7 +81,7 @@ RAW_PRINCIPLES.forEach((principle, pIdx) => {
     for (let sIdx = 1; sIdx <= 3; sIdx++) {
         const isLeave = sIdx === 3; // 3rd sales is set to LEAVE
         const targetStatus = isLeave ? 'LEAVE' : 'STAY';
-        
+
         const salesName = `SALES ${sIdx} ${principle}`;
         const salesId = genId('S', `${pIdx}_${sIdx}`);
 
@@ -95,29 +95,30 @@ RAW_PRINCIPLES.forEach((principle, pIdx) => {
         });
 
         // D. Generate 12 Months of Evaluations
-        for (let month = 1; month <= 12; month++) {
-            const scores = getScoresForStatus(targetStatus);
-            
-            // Calculate rough final score to set status correctly in object
-            // Default weights: SPV 40%, KASIR 40%, HRD 20%
-            const spvAvg = (scores.sellOut! + scores.activeOutlet! + scores.effectiveCall! + scores.itemPerTrans!) / 4;
-            const kasirAvg = (scores.akurasiSetoran! + scores.sisaFaktur! + scores.overdue! + scores.updateSetoran!) / 4;
-            const hrdAvg = (scores.absensi! + scores.terlambat! + scores.fingerScan!) / 3;
-            
-            const finalScore = (spvAvg * 0.4) + (kasirAvg * 0.4) + (hrdAvg * 0.2);
+        // COMMENTED OUT: Start with NO evaluations, users must perform actual ratings
+        // for (let month = 1; month <= 12; month++) {
+        //     const scores = getScoresForStatus(targetStatus);
+        //     
+        //     // Calculate rough final score to set status correctly in object
+        //     // Default weights: SPV 40%, KASIR 40%, HRD 20%
+        //     const spvAvg = (scores.sellOut! + scores.activeOutlet! + scores.effectiveCall! + scores.itemPerTrans!) / 4;
+        //     const kasirAvg = (scores.akurasiSetoran! + scores.sisaFaktur! + scores.overdue! + scores.updateSetoran!) / 4;
+        //     const hrdAvg = (scores.absensi! + scores.terlambat! + scores.fingerScan!) / 3;
+        //     
+        //     const finalScore = (spvAvg * 0.4) + (kasirAvg * 0.4) + (hrdAvg * 0.2);
 
-            generatedEvaluations.push({
-                salesId: salesId,
-                year: CURRENT_YEAR,
-                month: month,
-                scores: scores,
-                supervisorRated: true,
-                kasirRated: true,
-                hrdRated: true,
-                finalScore: parseFloat(finalScore.toFixed(2)),
-                status: finalScore >= 75 ? 'STAY' : 'LEAVE'
-            });
-        }
+        //     generatedEvaluations.push({
+        //         salesId: salesId,
+        //         year: CURRENT_YEAR,
+        //         month: month,
+        //         scores: scores,
+        //         supervisorRated: true,
+        //         kasirRated: true,
+        //         hrdRated: true,
+        //         finalScore: parseFloat(finalScore.toFixed(2)),
+        //         status: finalScore >= 75 ? 'STAY' : 'LEAVE'
+        //     });
+        // }
     }
 });
 

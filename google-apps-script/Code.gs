@@ -742,3 +742,31 @@ function testReadPrinciples() {
   Logger.log(JSON.stringify(data, null, 2));
 }
 
+/**
+ * CLEAR ALL EVALUATIONS - Menghapus semua data evaluasi
+ * CARA: Jalankan fungsi ini dari Apps Script Editor untuk menghapus semua evaluasi
+ * Menu: Select clearAllEvaluations > Run
+ */
+function clearAllEvaluations() {
+  const ss = SpreadsheetApp.openById('1hvpLdDk9AwWK5AZcL6Tuo3RnOzZgqhmuzOjBN6pZRko');
+  const sheet = ss.getSheetByName(SHEET_NAMES.EVALUATIONS);
+  
+  if (!sheet) {
+    Logger.log('Sheet Evaluations tidak ditemukan.');
+    return;
+  }
+  
+  const lastRow = sheet.getLastRow();
+  
+  if (lastRow <= 1) {
+    Logger.log('Tidak ada data evaluasi untuk dihapus (sheet sudah kosong).');
+    return;
+  }
+  
+  // Hapus semua baris kecuali header (baris 1)
+  sheet.deleteRows(2, lastRow - 1);
+  
+  Logger.log('✅ BERHASIL! Semua data evaluasi telah dihapus.');
+  Logger.log('Total baris yang dihapus: ' + (lastRow - 1));
+  Logger.log('Silakan refresh aplikasi untuk melihat perubahan.');
+}
