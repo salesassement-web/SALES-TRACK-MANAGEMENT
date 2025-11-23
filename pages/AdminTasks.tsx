@@ -3,7 +3,6 @@ import { useApp } from '../context/AppContext';
 import { TaskStatus, TaskPriority } from '../types';
 import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer, UserCog } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import { DonutChart } from '../components/DonutChart';
 
 export const AdminTasks: React.FC = () => {
     const { tasks, usersList, principles, updateTask, appConfig, currentUser } = useApp();
@@ -15,7 +14,8 @@ export const AdminTasks: React.FC = () => {
     // Enriched Data
     const enrichedTasks = useMemo(() => {
         return tasks.map(task => {
-            const supervisor = usersList.find(u => u.id === task.supervisorId);
+            // Try to find supervisor by ID first, then by Name
+            const supervisor = usersList.find(u => u.id === task.supervisorId || u.fullName === task.supervisorId);
             return {
                 ...task,
                 supervisorName: supervisor?.fullName || 'Unknown',
@@ -44,67 +44,75 @@ export const AdminTasks: React.FC = () => {
             .filter(Boolean);
     }, [enrichedTasks, principles]);
 
-    const chartData = useMemo(() => {
-        const now = new Date();
-        let startDate = new Date();
-        if (timeFilter === 'WEEK') startDate.setDate(now.getDate() - 7);
-        else if (timeFilter === 'MONTH') startDate.setMonth(now.getMonth() - 1);
-        else startDate.setFullYear(now.getFullYear() - 1);
+    // Stacked Bar Chart Data 1: Status by Principle
+    const statusByPrinciple = useMemo(() => {
+        const data: Record<string, any> = {};
 
-        const filteredByTime = enrichedTasks.filter(t => new Date(t.taskDate) >= startDate);
-        const grouped: Record<string, any> = {};
-
-        filteredByTime.forEach(t => {
-            const key = groupFilter === 'SUPERVISOR' ? t.supervisorName : t.principle;
-            if (!grouped[key]) grouped[key] = { name: key, open: 0, pending: 0, ongoing: 0, completed: 0 };
-            if (t.status === TaskStatus.OPEN) grouped[key].open++;
-            else if (t.status === TaskStatus.PENDING) grouped[key].pending++;
-            else if (t.status === TaskStatus.ONGOING) grouped[key].ongoing++;
-            else if (t.status === TaskStatus.COMPLETED) grouped[key].completed++;
-        });
-        return Object.values(grouped);
-    }, [enrichedTasks, timeFilter, groupFilter]);
-
-    // Donut Chart Data 1: Tasks by Principle
-    const tasksByPrinciple = useMemo(() => {
-        const distribution: Record<string, number> = {};
-
-        // Initialize with 0 for all principles
+        // Initialize
         principles.forEach(p => {
             if (p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO') {
-                distribution[p] = 0;
+                data[p] = { name: p, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
             }
         });
 
         enrichedTasks.forEach(task => {
             const p = task.principle;
-            if (p && p !== 'Unknown') {
-                if (distribution[p] !== undefined) {
-                    distribution[p]++;
-                } else {
-                    distribution[p] = (distribution[p] || 0) + 1;
-                }
+            if (data[p]) {
+                data[p][task.status] = (data[p][task.status] || 0) + 1;
+            } else if (p && p !== 'Unknown') {
+                // Handle principles not in the initial list
+                if (!data[p]) data[p] = { name: p, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
+                data[p][task.status] = (data[p][task.status] || 0) + 1;
             }
         });
 
-        return Object.entries(distribution)
-            .map(([name, value]) => ({ name, value }))
-            .filter(item => item.value > 0);
+        return Object.values(data).filter(item =>
+            item[TaskStatus.COMPLETED] + item[TaskStatus.ONGOING] + item[TaskStatus.PENDING] + item[TaskStatus.OPEN] > 0
+        );
     }, [enrichedTasks, principles]);
 
-    // Donut Chart Data 2: Tasks by Supervisor
-    const tasksBySupervisor = useMemo(() => {
-        const distribution: Record<string, number> = {};
+    // Stacked Bar Chart Data 2: Status by Supervisor
+    const statusBySupervisor = useMemo(() => {
+        const data: Record<string, any> = {};
 
         enrichedTasks.forEach(task => {
             const name = task.supervisorName;
-            distribution[name] = (distribution[name] || 0) + 1;
+            if (name !== 'Unknown') {
+                if (!data[name]) data[name] = { name: name, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
+                data[name][task.status] = (data[name][task.status] || 0) + 1;
+            }
         });
 
-        return Object.entries(distribution)
-            .map(([name, value]) => ({ name, value }))
-            .sort((a, b) => b.value - a.value);
+        return Object.values(data).sort((a: any, b: any) => {
+            const totalA = a[TaskStatus.COMPLETED] + a[TaskStatus.ONGOING] + a[TaskStatus.PENDING] + a[TaskStatus.OPEN];
+            const totalB = b[TaskStatus.COMPLETED] + b[TaskStatus.ONGOING] + b[TaskStatus.PENDING] + b[TaskStatus.OPEN];
+            return totalB - totalA;
+        });
     }, [enrichedTasks]);
+
+    const CustomBarChart = ({ title, data }: { title: string, data: any[] }) => (
+        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card h-[400px] flex flex-col">
+            <h4 className="font-bold text-slate-700 mb-4">{title}</h4>
+            <div className="flex-1 w-full min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#64748b' }} interval={0} angle={-45} textAnchor="end" height={60} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                        <RechartsTooltip
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            cursor={{ fill: '#f1f5f9' }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                        <Bar dataKey={TaskStatus.COMPLETED} name="Completed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
+                        <Bar dataKey={TaskStatus.ONGOING} name="Ongoing" stackId="a" fill="#8b5cf6" />
+                        <Bar dataKey={TaskStatus.PENDING} name="Pending" stackId="a" fill="#f97316" />
+                        <Bar dataKey={TaskStatus.OPEN} name="Open" stackId="a" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
 
     return (
         <div className="w-full print-content">
@@ -222,23 +230,11 @@ export const AdminTasks: React.FC = () => {
                 <div className="print-section print-no-break">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">3. Analytics</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Donut Chart 1: Tasks by Principle */}
-                        <DonutChart
-                            title="Tasks by Principle"
-                            data={tasksByPrinciple}
-                            dataKey="value"
-                            nameKey="name"
-                            colors={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']}
-                        />
+                        {/* Stacked Bar Chart 1: Status by Principle */}
+                        <CustomBarChart title="Task Status by Principle" data={statusByPrinciple} />
 
-                        {/* Donut Chart 2: Tasks by Supervisor */}
-                        <DonutChart
-                            title="Tasks by Supervisor"
-                            data={tasksBySupervisor}
-                            dataKey="value"
-                            nameKey="name"
-                            colors={['#82ca9d', '#8884d8', '#ffc658', '#ff7300', '#0088FE']}
-                        />
+                        {/* Stacked Bar Chart 2: Status by Supervisor */}
+                        <CustomBarChart title="Task Status by Supervisor" data={statusBySupervisor} />
                     </div>
                 </div>
 

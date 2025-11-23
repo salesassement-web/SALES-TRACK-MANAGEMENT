@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { ScoreData, TaskStatus } from '../types';
 import { CircularProgress } from '../components/CircularProgress';
-import { DonutChart } from '../components/DonutChart';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   ComposedChart, Line, Area, LabelList
@@ -79,49 +78,54 @@ export const Dashboard: React.FC = () => {
     return { name: principle, total: totalDiv, rated: ratedDiv, unrated: totalDiv - ratedDiv, percentage: Math.round((ratedDiv / totalDiv) * 100) };
   }).filter(Boolean);
 
-  // Donut Chart Data 1: Tasks by Principle
-  const tasksByPrinciple = React.useMemo(() => {
-    const distribution: Record<string, number> = {};
+  // Stacked Bar Chart Data 1: Status by Principle
+  const statusByPrinciple = useMemo(() => {
+    const data: Record<string, any> = {};
 
-    // Initialize with 0 for all principles
+    // Initialize
     principles.forEach(p => {
       if (p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO') {
-        distribution[p] = 0;
+        data[p] = { name: p, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
       }
     });
 
     dashboardTasks.forEach(task => {
-      const supervisor = usersList.find(u => u.id === task.supervisorId);
-      if (supervisor && supervisor.principle) {
-        // Handle cases where principle might be mixed or specific
-        const p = supervisor.principle;
-        if (distribution[p] !== undefined) {
-          distribution[p]++;
-        } else {
-          // If principle not in initial list (e.g. new one), add it
-          distribution[p] = (distribution[p] || 0) + 1;
-        }
+      const supervisor = usersList.find(u => u.id === task.supervisorId || u.fullName === task.supervisorId);
+      const p = supervisor?.principle;
+
+      if (p && data[p]) {
+        data[p][task.status] = (data[p][task.status] || 0) + 1;
+      } else if (p && p !== 'Unknown') {
+        // Handle principles not in the initial list
+        if (!data[p]) data[p] = { name: p, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
+        data[p][task.status] = (data[p][task.status] || 0) + 1;
       }
     });
 
-    return Object.entries(distribution)
-      .map(([name, value]) => ({ name, value }))
-      .filter(item => item.value > 0); // Only show principles with tasks
+    return Object.values(data).filter(item =>
+      item[TaskStatus.COMPLETED] + item[TaskStatus.ONGOING] + item[TaskStatus.PENDING] + item[TaskStatus.OPEN] > 0
+    );
   }, [dashboardTasks, usersList, principles]);
 
-  // Donut Chart Data 2: Tasks by Supervisor
-  const tasksBySupervisor = React.useMemo(() => {
-    const distribution: Record<string, number> = {};
+  // Stacked Bar Chart Data 2: Status by Supervisor
+  const statusBySupervisor = useMemo(() => {
+    const data: Record<string, any> = {};
 
     dashboardTasks.forEach(task => {
-      const supervisor = usersList.find(u => u.id === task.supervisorId);
+      const supervisor = usersList.find(u => u.id === task.supervisorId || u.fullName === task.supervisorId);
       const name = supervisor ? supervisor.fullName : 'Unknown';
-      distribution[name] = (distribution[name] || 0) + 1;
+
+      if (name !== 'Unknown') {
+        if (!data[name]) data[name] = { name: name, [TaskStatus.COMPLETED]: 0, [TaskStatus.ONGOING]: 0, [TaskStatus.PENDING]: 0, [TaskStatus.OPEN]: 0 };
+        data[name][task.status] = (data[name][task.status] || 0) + 1;
+      }
     });
 
-    return Object.entries(distribution)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value); // Sort by highest task count
+    return Object.values(data).sort((a: any, b: any) => {
+      const totalA = a[TaskStatus.COMPLETED] + a[TaskStatus.ONGOING] + a[TaskStatus.PENDING] + a[TaskStatus.OPEN];
+      const totalB = b[TaskStatus.COMPLETED] + b[TaskStatus.ONGOING] + b[TaskStatus.PENDING] + b[TaskStatus.OPEN];
+      return totalB - totalA;
+    });
   }, [dashboardTasks, usersList]);
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -255,23 +259,51 @@ export const Dashboard: React.FC = () => {
         <div className="print-section">
           <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">3. Analytics Overview</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Donut Chart 1: Tasks by Principle */}
-            <DonutChart
-              title="Tasks by Principle"
-              data={tasksByPrinciple}
-              dataKey="value"
-              nameKey="name"
-              colors={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']}
-            />
+            {/* Stacked Bar Chart 1: Status by Principle */}
+            <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card h-[400px] flex flex-col">
+              <h4 className="font-bold text-slate-700 mb-4">Task Status by Principle</h4>
+              <div className="flex-1 w-full min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statusByPrinciple} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#64748b' }} interval={0} angle={-45} textAnchor="end" height={60} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <RechartsTooltip
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      cursor={{ fill: '#f1f5f9' }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                    <Bar dataKey={TaskStatus.COMPLETED} name="Completed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey={TaskStatus.ONGOING} name="Ongoing" stackId="a" fill="#8b5cf6" />
+                    <Bar dataKey={TaskStatus.PENDING} name="Pending" stackId="a" fill="#f97316" />
+                    <Bar dataKey={TaskStatus.OPEN} name="Open" stackId="a" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-            {/* Donut Chart 2: Tasks by Supervisor */}
-            <DonutChart
-              title="Tasks by Supervisor"
-              data={tasksBySupervisor}
-              dataKey="value"
-              nameKey="name"
-              colors={['#82ca9d', '#8884d8', '#ffc658', '#ff7300', '#0088FE']}
-            />
+            {/* Stacked Bar Chart 2: Status by Supervisor */}
+            <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card h-[400px] flex flex-col">
+              <h4 className="font-bold text-slate-700 mb-4">Task Status by Supervisor</h4>
+              <div className="flex-1 w-full min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statusBySupervisor} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#64748b' }} interval={0} angle={-45} textAnchor="end" height={60} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <RechartsTooltip
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      cursor={{ fill: '#f1f5f9' }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                    <Bar dataKey={TaskStatus.COMPLETED} name="Completed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey={TaskStatus.ONGOING} name="Ongoing" stackId="a" fill="#8b5cf6" />
+                    <Bar dataKey={TaskStatus.PENDING} name="Pending" stackId="a" fill="#f97316" />
+                    <Bar dataKey={TaskStatus.OPEN} name="Open" stackId="a" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
 
