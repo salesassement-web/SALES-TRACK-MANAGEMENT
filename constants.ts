@@ -1,4 +1,4 @@
-import { User, UserRole, SalesPerson, Evaluation } from './types';
+import { User, UserRole, SalesPerson, Evaluation, Task, TaskStatus, TaskPriority } from './types';
 
 const CURRENT_DATE = new Date();
 const CURRENT_MONTH = CURRENT_DATE.getMonth() + 1;
@@ -41,7 +41,7 @@ export const DUMMY_USERS: User[] = [
   { id: 'U04', fullName: 'HRD', role: UserRole.HRD, principle: 'ALL PRINCIPLE' },
   { id: 'U05', fullName: 'SUNARIYANTO', role: UserRole.SUPERVISOR, principle: 'UNILEVER' },
   { id: 'U06', fullName: 'WATI', role: UserRole.SUPERVISOR, principle: 'KENVEU' },
-  { id: 'U07', fullName: 'SHELA', role: UserRole.SUPERVISOR, principle: 'PERFETTI' }, 
+  { id: 'U07', fullName: 'SHELA', role: UserRole.SUPERVISOR, principle: 'PERFETTI' },
 ];
 
 export const PRINCIPLES = [
@@ -58,9 +58,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S01', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 90, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 85,
-       akurasiSetoran: 90, sisaFaktur: 85, overdue: 90, updateSetoran: 95,
-       absensi: 100, terlambat: 90, fingerScan: 95
+      sellOut: 90, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 85,
+      akurasiSetoran: 90, sisaFaktur: 85, overdue: 90, updateSetoran: 95,
+      absensi: 100, terlambat: 90, fingerScan: 95
     },
     finalScore: 88.85, status: 'STAY'
   },
@@ -68,9 +68,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S02', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 80, activeOutlet: 80, effectiveCall: 75, itemPerTrans: 70,
-       akurasiSetoran: 85, sisaFaktur: 80, overdue: 75, updateSetoran: 80,
-       absensi: 95, terlambat: 85, fingerScan: 90
+      sellOut: 80, activeOutlet: 80, effectiveCall: 75, itemPerTrans: 70,
+      akurasiSetoran: 85, sisaFaktur: 80, overdue: 75, updateSetoran: 80,
+      absensi: 95, terlambat: 85, fingerScan: 90
     },
     finalScore: 80.15, status: 'STAY'
   },
@@ -78,9 +78,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S03', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 60, activeOutlet: 50, effectiveCall: 55, itemPerTrans: 60,
-       akurasiSetoran: 70, sisaFaktur: 60, overdue: 65, updateSetoran: 70,
-       absensi: 80, terlambat: 70, fingerScan: 75
+      sellOut: 60, activeOutlet: 50, effectiveCall: 55, itemPerTrans: 60,
+      akurasiSetoran: 70, sisaFaktur: 60, overdue: 65, updateSetoran: 70,
+      absensi: 80, terlambat: 70, fingerScan: 75
     },
     finalScore: 63.5, status: 'LEAVE'
   },
@@ -90,9 +90,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S06', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 95, activeOutlet: 90, effectiveCall: 90, itemPerTrans: 85,
-       akurasiSetoran: 95, sisaFaktur: 90, overdue: 95, updateSetoran: 90,
-       absensi: 100, terlambat: 100, fingerScan: 100
+      sellOut: 95, activeOutlet: 90, effectiveCall: 90, itemPerTrans: 85,
+      akurasiSetoran: 95, sisaFaktur: 90, overdue: 95, updateSetoran: 90,
+      absensi: 100, terlambat: 100, fingerScan: 100
     },
     finalScore: 93.4, status: 'STAY'
   },
@@ -100,9 +100,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S07', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 50, activeOutlet: 55, effectiveCall: 50, itemPerTrans: 40,
-       akurasiSetoran: 60, sisaFaktur: 50, overdue: 55, updateSetoran: 60,
-       absensi: 90, terlambat: 80, fingerScan: 80
+      sellOut: 50, activeOutlet: 55, effectiveCall: 50, itemPerTrans: 40,
+      akurasiSetoran: 60, sisaFaktur: 50, overdue: 55, updateSetoran: 60,
+      absensi: 90, terlambat: 80, fingerScan: 80
     },
     finalScore: 58.7, status: 'LEAVE'
   },
@@ -110,9 +110,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S08', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 85, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 80,
-       akurasiSetoran: 80, sisaFaktur: 85, overdue: 80, updateSetoran: 85,
-       absensi: 100, terlambat: 95, fingerScan: 95
+      sellOut: 85, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 80,
+      akurasiSetoran: 80, sisaFaktur: 85, overdue: 80, updateSetoran: 85,
+      absensi: 100, terlambat: 95, fingerScan: 95
     },
     finalScore: 85.3, status: 'STAY'
   },
@@ -122,9 +122,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S11', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
-       akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
-       absensi: 80, terlambat: 80, fingerScan: 80
+      sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
+      akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
+      absensi: 80, terlambat: 80, fingerScan: 80
     },
     finalScore: 80.0, status: 'STAY'
   },
@@ -132,9 +132,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S12', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 90, activeOutlet: 85, effectiveCall: 85, itemPerTrans: 80,
-       akurasiSetoran: 90, sisaFaktur: 85, overdue: 85, updateSetoran: 80,
-       absensi: 95, terlambat: 90, fingerScan: 90
+      sellOut: 90, activeOutlet: 85, effectiveCall: 85, itemPerTrans: 80,
+      akurasiSetoran: 90, sisaFaktur: 85, overdue: 85, updateSetoran: 80,
+      absensi: 95, terlambat: 90, fingerScan: 90
     },
     finalScore: 87.6, status: 'STAY'
   },
@@ -142,9 +142,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S13', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 78, activeOutlet: 75, effectiveCall: 70, itemPerTrans: 75,
-       akurasiSetoran: 85, sisaFaktur: 80, overdue: 80, updateSetoran: 85,
-       absensi: 90, terlambat: 85, fingerScan: 90
+      sellOut: 78, activeOutlet: 75, effectiveCall: 70, itemPerTrans: 75,
+      akurasiSetoran: 85, sisaFaktur: 80, overdue: 80, updateSetoran: 85,
+      absensi: 90, terlambat: 85, fingerScan: 90
     },
     finalScore: 79.55, status: 'STAY'
   },
@@ -154,9 +154,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S16', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 92, activeOutlet: 90, effectiveCall: 88, itemPerTrans: 85,
-       akurasiSetoran: 90, sisaFaktur: 90, overdue: 90, updateSetoran: 90,
-       absensi: 100, terlambat: 100, fingerScan: 100
+      sellOut: 92, activeOutlet: 90, effectiveCall: 88, itemPerTrans: 85,
+      akurasiSetoran: 90, sisaFaktur: 90, overdue: 90, updateSetoran: 90,
+      absensi: 100, terlambat: 100, fingerScan: 100
     },
     finalScore: 91.3, status: 'STAY'
   },
@@ -164,9 +164,9 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S17', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
-       akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
-       absensi: 80, terlambat: 80, fingerScan: 80
+      sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
+      akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
+      absensi: 80, terlambat: 80, fingerScan: 80
     },
     finalScore: 80.0, status: 'STAY'
   },
@@ -174,10 +174,20 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
     salesId: 'S18', year: CURRENT_YEAR, month: CURRENT_MONTH,
     supervisorRated: true, kasirRated: true, hrdRated: true,
     scores: {
-       sellOut: 40, activeOutlet: 50, effectiveCall: 40, itemPerTrans: 50,
-       akurasiSetoran: 60, sisaFaktur: 60, overdue: 60, updateSetoran: 60,
-       absensi: 80, terlambat: 70, fingerScan: 70
+      sellOut: 40, activeOutlet: 50, effectiveCall: 40, itemPerTrans: 50,
+      akurasiSetoran: 60, sisaFaktur: 60, overdue: 60, updateSetoran: 60,
+      absensi: 80, terlambat: 70, fingerScan: 70
     },
     finalScore: 55.4, status: 'LEAVE'
   },
+];
+
+export const DUMMY_TASKS: Task[] = [
+  { id: '1', supervisorId: 'U02', title: 'Visit Toko Mitra 10', description: 'Survey stok dan display produk baru', taskDate: '2025-11-23', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN, attachment: '' },
+  { id: '2', supervisorId: 'U02', title: 'Meeting Tim Sales', description: 'Review performance bulan November', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.PENDING, timeIn: '09:00', attachment: '' },
+  { id: '3', supervisorId: 'U02', title: 'Follow Up Client ABC', description: 'Telepon Pak Bambang untuk order', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.MEDIUM, status: TaskStatus.ONGOING, timeIn: '10:00', timeOut: '14:00', attachment: '' },
+  { id: '4', supervisorId: 'U02', title: 'Training Produk Baru', description: 'Pelatihan product knowledge untuk tim', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
+  { id: '5', supervisorId: 'U02', title: 'Visit ACE Hardware Senayan', description: 'Check kompetitor pricing dan promo', taskDate: '2025-11-21', dueDate: '2025-11-23', priority: TaskPriority.LOW, status: TaskStatus.COMPLETED, timeIn: '08:00', timeOut: '12:00', attachment: 'https://via.placeholder.com/150' },
+  { id: '6', supervisorId: 'U02', title: 'Report Penjualan Q4', description: 'Compile sales report untuk management', taskDate: '2025-11-25', dueDate: '2025-11-30', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
+  { id: '7', supervisorId: 'U02', title: 'Customer Visit - PT XYZ', description: 'Presentasi produk ke klien baru', taskDate: '2025-11-26', dueDate: '2025-11-28', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN, attachment: '' },
 ];

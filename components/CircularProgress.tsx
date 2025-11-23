@@ -7,6 +7,9 @@ interface CircularProgressProps {
     pending: number;
     title: string;
     color?: string;
+    labelCompleted?: string;
+    labelPending?: string;
+    labelRunning?: string;
 }
 
 export const CircularProgress: React.FC<CircularProgressProps> = ({
@@ -15,7 +18,10 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     completed,
     pending,
     title,
-    color = '#0077b6'
+    color = '#0077b6',
+    labelCompleted = 'Project Completed',
+    labelPending = 'Project Hold',
+    labelRunning = 'Running Task'
 }) => {
     const radius = 60;
     const stroke = 12;
@@ -76,7 +82,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
 
                     {/* Running Task Info */}
                     <div className="text-right">
-                        <div className="text-sm opacity-80 mb-1">Running Task</div>
+                        <div className="text-sm opacity-80 mb-1">{labelRunning}</div>
                         <div className="text-4xl font-bold">{pending}</div>
                     </div>
                 </div>
@@ -86,7 +92,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
                     {/* Project Completed */}
                     <div>
                         <div className="flex justify-between text-xs mb-1">
-                            <span className="opacity-90">Project Completed</span>
+                            <span className="opacity-90">{labelCompleted}</span>
                             <span className="font-bold">{completed} of {total}</span>
                         </div>
                         <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
@@ -100,7 +106,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
                     {/* Project Hold */}
                     <div>
                         <div className="flex justify-between text-xs mb-1">
-                            <span className="opacity-90">Project Hold</span>
+                            <span className="opacity-90">{labelPending}</span>
                             <span className="font-bold">{pending} of {total}</span>
                         </div>
                         <div className="w-full bg-white bg-opacity-20 rounded-full h-2">

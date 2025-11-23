@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ScoreData, TaskStatus } from '../types';
 import { CircularProgress } from '../components/CircularProgress';
+import { DonutChart } from '../components/DonutChart';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   ComposedChart, Line, Area, LabelList
@@ -78,19 +79,52 @@ export const Dashboard: React.FC = () => {
     return { name: principle, total: totalDiv, rated: ratedDiv, unrated: totalDiv - ratedDiv, percentage: Math.round((ratedDiv / totalDiv) * 100) };
   }).filter(Boolean);
 
-  const trendEvals = getFilteredEvaluations(trendFilter);
-  const trendData = principles.filter(p => p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO').map(principle => {
-    const principleSalesIds = dashboardSalesList.filter(s => s.principle === principle).map(s => s.id);
-    if (principleSalesIds.length === 0) return null;
-    const relevantEvals = trendEvals.filter(e => principleSalesIds.includes(e.salesId));
-    return { name: principle, stay: relevantEvals.filter(e => e.status === 'STAY').length, leave: relevantEvals.filter(e => e.status === 'LEAVE').length };
-  }).filter(Boolean);
+  // Donut Chart Data 1: Tasks by Principle
+  const tasksByPrinciple = React.useMemo(() => {
+    const distribution: Record<string, number> = {};
+
+    // Initialize with 0 for all principles
+    principles.forEach(p => {
+      if (p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO') {
+        distribution[p] = 0;
+      }
+    });
+
+    dashboardTasks.forEach(task => {
+      const supervisor = usersList.find(u => u.id === task.supervisorId);
+      if (supervisor && supervisor.principle) {
+        // Handle cases where principle might be mixed or specific
+        const p = supervisor.principle;
+        if (distribution[p] !== undefined) {
+          distribution[p]++;
+        } else {
+          // If principle not in initial list (e.g. new one), add it
+          distribution[p] = (distribution[p] || 0) + 1;
+        }
+      }
+    });
+
+    return Object.entries(distribution)
+      .map(([name, value]) => ({ name, value }))
+      .filter(item => item.value > 0); // Only show principles with tasks
+  }, [dashboardTasks, usersList, principles]);
+
+  // Donut Chart Data 2: Tasks by Supervisor
+  const tasksBySupervisor = React.useMemo(() => {
+    const distribution: Record<string, number> = {};
+
+    dashboardTasks.forEach(task => {
+      const supervisor = usersList.find(u => u.id === task.supervisorId);
+      const name = supervisor ? supervisor.fullName : 'Unknown';
+      distribution[name] = (distribution[name] || 0) + 1;
+    });
+
+    return Object.entries(distribution)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value); // Sort by highest task count
+  }, [dashboardTasks, usersList]);
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const monthlyPerformanceData = months.map((monthName, index) => {
-    const monthlyEvals = dashboardEvaluations.filter(e => e.month === index + 1 && e.year === currentYear);
-    return { name: monthName, stay: monthlyEvals.filter(e => e.status === 'STAY').length, leave: monthlyEvals.filter(e => e.status === 'LEAVE').length };
-  });
 
   const overviewEvals = getFilteredEvaluations(overviewFilter);
 
@@ -176,6 +210,9 @@ export const Dashboard: React.FC = () => {
               total={totalTasks}
               completed={completedTasks}
               pending={pendingTasks}
+              labelCompleted="Tasks Completed"
+              labelPending="Tasks Hold"
+              labelRunning="Running Task"
             />
             {/* Evaluation Progress Circular Card */}
             <CircularProgress
@@ -184,6 +221,9 @@ export const Dashboard: React.FC = () => {
               total={totalSales}
               completed={fullyRated}
               pending={totalSales - fullyRated}
+              labelCompleted="Team Sudah Dinilai"
+              labelPending="Belum Dinilai"
+              labelRunning="Total Team"
             />
           </div>
         </div>
@@ -215,42 +255,23 @@ export const Dashboard: React.FC = () => {
         <div className="print-section">
           <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">3. Analytics Overview</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card print-no-break h-[350px] flex flex-col">
-              <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2 shrink-0">Status Trend</h4>
-              <div className="flex-1 w-full min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} interval={0} angle={-15} textAnchor="end" height={60} />
-                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                    <Bar dataKey="stay" name="Stay (>75)" fill="#10b981" stackId="a" isAnimationActive={false} radius={[0, 0, 4, 4]}>
-                      {/* Label hanya muncul jika bar cukup tinggi */}
-                    </Bar>
-                    <Bar dataKey="leave" name="Leave (<75)" fill="#ef4444" stackId="a" isAnimationActive={false} radius={[4, 4, 0, 0]}>
-                      <LabelList dataKey="leave" position="top" style={{ fill: '#ef4444', fontSize: 10, fontWeight: 'bold' }} formatter={(val: any) => val > 0 ? val : ''} />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card print-no-break h-[350px] flex flex-col">
-              <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2 shrink-0">Monthly Overview</h4>
-              <div className="flex-1 w-full min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={monthlyPerformanceData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                    <Area type="monotone" dataKey="stay" name="Stay Trend" fill="#818cf8" fillOpacity={0.2} stroke="#818cf8" strokeWidth={2} isAnimationActive={false} />
-                    <Line type="monotone" dataKey="leave" name="Leave Trend" stroke="#f43f5e" strokeWidth={3} dot={{ r: 4, fill: '#f43f5e', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} isAnimationActive={false}>
-                      <LabelList dataKey="leave" position="top" offset={10} style={{ fill: '#f43f5e', fontSize: 10, fontWeight: 'bold' }} formatter={(val: any) => val > 0 ? val : ''} />
-                    </Line>
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            {/* Donut Chart 1: Tasks by Principle */}
+            <DonutChart
+              title="Tasks by Principle"
+              data={tasksByPrinciple}
+              dataKey="value"
+              nameKey="name"
+              colors={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']}
+            />
+
+            {/* Donut Chart 2: Tasks by Supervisor */}
+            <DonutChart
+              title="Tasks by Supervisor"
+              data={tasksBySupervisor}
+              dataKey="value"
+              nameKey="name"
+              colors={['#82ca9d', '#8884d8', '#ffc658', '#ff7300', '#0088FE']}
+            />
           </div>
         </div>
 

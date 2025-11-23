@@ -1,3 +1,10 @@
+import React, { useState } from 'react';
+import { useApp } from '../context/AppContext';
+import { LayoutDashboard, FileText, LogOut, Briefcase, Users, UserCog, Layers, X, CheckSquare, ClipboardList, Settings, DatabaseBackup, Shield, Wifi, WifiOff, Loader2, RefreshCw } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { UserRole } from '../types';
+import { Avatar } from './Avatar';
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
