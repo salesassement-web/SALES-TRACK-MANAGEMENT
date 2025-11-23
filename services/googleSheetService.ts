@@ -1,4 +1,3 @@
-
 import { Evaluation, SalesPerson, Task, User } from '../types';
 
 
@@ -34,7 +33,40 @@ export const googleSheetService = {
       const json = await response.json();
 
       if (json.status === 'success') {
-        return json.data;
+        const data = json.data;
+
+        // Normalize scores if they are in decimal format (0-1) -> (0-100)
+        const evaluations = (data.evaluations || []).map((e: any) => {
+          const normalize = (val: number) => (val <= 1 && val > 0 ? val * 100 : val);
+
+          const scores = e.scores ? {
+            sellOut: normalize(e.scores.sellOut),
+            activeOutlet: normalize(e.scores.activeOutlet),
+            effectiveCall: normalize(e.scores.effectiveCall),
+            itemPerTrans: normalize(e.scores.itemPerTrans),
+            akurasiSetoran: normalize(e.scores.akurasiSetoran),
+            sisaFaktur: normalize(e.scores.sisaFaktur),
+            overdue: normalize(e.scores.overdue),
+            updateSetoran: normalize(e.scores.updateSetoran),
+            absensi: normalize(e.scores.absensi),
+            terlambat: normalize(e.scores.terlambat),
+            fingerScan: normalize(e.scores.fingerScan),
+          } : undefined;
+
+          return {
+            ...e,
+            scores,
+            finalScore: normalize(e.finalScore)
+          };
+        });
+
+        return {
+          users: data.users || [],
+          sales: data.sales || [],
+          evaluations: evaluations,
+          tasks: data.tasks || [],
+          principles: data.principles || []
+        };
       } else {
         console.error("Google Sheet returned error status:", json);
         return null;

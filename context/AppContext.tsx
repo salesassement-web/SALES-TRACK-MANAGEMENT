@@ -5,7 +5,7 @@ import { DUMMY_SALES, DUMMY_USERS, PRINCIPLES as INITIAL_PRINCIPLES, DUMMY_EVALU
 import { googleSheetService } from '../services/googleSheetService';
 
 // ENABLE GOOGLE SHEETS INTEGRATION
-const USE_GOOGLE_SHEETS = true;
+const USE_GOOGLE_SHEETS = true; // Enabled for live data sync
 
 export type ConnectionStatus = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
 

@@ -183,11 +183,30 @@ export const DUMMY_EVALUATIONS: Evaluation[] = [
 ];
 
 export const DUMMY_TASKS: Task[] = [
+  // NINA AFRIDA - KALBE (U02)
   { id: '1', supervisorId: 'U02', title: 'Visit Toko Mitra 10', description: 'Survey stok dan display produk baru', taskDate: '2025-11-23', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN, attachment: '' },
   { id: '2', supervisorId: 'U02', title: 'Meeting Tim Sales', description: 'Review performance bulan November', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.PENDING, timeIn: '09:00', attachment: '' },
   { id: '3', supervisorId: 'U02', title: 'Follow Up Client ABC', description: 'Telepon Pak Bambang untuk order', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.MEDIUM, status: TaskStatus.ONGOING, timeIn: '10:00', timeOut: '14:00', attachment: '' },
-  { id: '4', supervisorId: 'U02', title: 'Training Produk Baru', description: 'Pelatihan product knowledge untuk tim', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
+  { id: '4', supervisorId: 'U02', title: 'Training Produk Baru', description: 'Pelatihan product knowledge untuk tim', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, attachment: '' },
   { id: '5', supervisorId: 'U02', title: 'Visit ACE Hardware Senayan', description: 'Check kompetitor pricing dan promo', taskDate: '2025-11-21', dueDate: '2025-11-23', priority: TaskPriority.LOW, status: TaskStatus.COMPLETED, timeIn: '08:00', timeOut: '12:00', attachment: 'https://via.placeholder.com/150' },
-  { id: '6', supervisorId: 'U02', title: 'Report Penjualan Q4', description: 'Compile sales report untuk management', taskDate: '2025-11-25', dueDate: '2025-11-30', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
-  { id: '7', supervisorId: 'U02', title: 'Customer Visit - PT XYZ', description: 'Presentasi produk ke klien baru', taskDate: '2025-11-26', dueDate: '2025-11-28', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN, attachment: '' },
+
+  // SUNARIYANTO - UNILEVER (U05)
+  { id: '6', supervisorId: 'U05', title: 'Audit Stock Unilever', description: 'Check inventory produk Unilever di gudang', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '08:00', attachment: '' },
+  { id: '7', supervisorId: 'U05', title: 'Presentasi ke Alfamart', description: 'Tawarkan produk baru ke buyer Alfamart', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '10:00', timeOut: '15:00', attachment: '' },
+  { id: '8', supervisorId: 'U05', title: 'Survey Pasar Modern', description: 'Cek harga kompetitor di supermarket', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
+  { id: '9', supervisorId: 'U05', title: 'Meeting Regional Manager', description: 'Diskusi strategi Q1 2026', taskDate: '2025-11-25', dueDate: '2025-11-27', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
+  { id: '10', supervisorId: 'U05', title: 'Training Team Selling Skills', description: 'Pelatihan teknik penjualan untuk sales team', taskDate: '2025-11-26', dueDate: '2025-11-28', priority: TaskPriority.MEDIUM, status: TaskStatus.COMPLETED, attachment: '' },
+
+  // WATI - KENVEU (U06)
+  { id: '11', supervisorId: 'U06', title: 'Visit Distributor Utama', description: 'Follow up payment dan order baru', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '09:00', attachment: '' },
+  { id: '12', supervisorId: 'U06', title: 'Laporan Mingguan', description: 'Submit weekly sales report ke management', taskDate: '2025-11-22', dueDate: '2025-11-22', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '14:00', timeOut: '16:00', attachment: '' },
+  { id: '13', supervisorId: 'U06', title: 'Coaching Sales Junior', description: 'Mentoring 2 sales baru tentang product knowledge', taskDate: '2025-11-24', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
+  { id: '14', supervisorId: 'U06', title: 'Analisa Kompetitor', description: 'Research produk dan harga kompetitor brand sejenis', taskDate: '2025-11-25', dueDate: '2025-11-27', priority: TaskPriority.LOW, status: TaskStatus.OPEN, attachment: '' },
+
+  // SHELA - PERFETTI (U07)
+  { id: '15', supervisorId: 'U07', title: 'Roadshow Produk Baru', description: 'Event launching produk Perfetti di mall', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '10:00', attachment: '' },
+  { id: '16', supervisorId: 'U07', title: 'Negosiasi Harga Indomaret', description: 'Diskusi kontrak supply ke Indomaret', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '11:00', timeOut: '14:00', attachment: '' },
+  { id: '17', supervisorId: 'U07', title: 'Review Target Bulanan', description: 'Evaluasi pencapaian sales vs target November', taskDate: '2025-11-24', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
+  { id: '18', supervisorId: 'U07', title: 'Visit Toko Ritel Kecil', description: 'Survey dan stock check ke 10 toko retail', taskDate: '2025-11-25', dueDate: '2025-11-26', priority: TaskPriority.LOW, status: TaskStatus.OPEN, attachment: '' },
+  { id: '19', supervisorId: 'U07', title: 'Briefing Tim Mingguan', description: 'Weekly meeting dengan seluruh sales team', taskDate: '2025-11-26', dueDate: '2025-11-26', priority: TaskPriority.MEDIUM, status: TaskStatus.COMPLETED, attachment: '' },
 ];

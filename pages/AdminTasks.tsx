@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { TaskStatus, TaskPriority } from '../types';
 import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer, UserCog } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList, ComposedChart, Line } from 'recharts';
+import { CircularProgress } from '../components/CircularProgress';
 
 export const AdminTasks: React.FC = () => {
     const { tasks, usersList, principles, updateTask, appConfig, currentUser } = useApp();
@@ -14,8 +15,9 @@ export const AdminTasks: React.FC = () => {
     // Enriched Data
     const enrichedTasks = useMemo(() => {
         return tasks.map(task => {
-            // Try to find supervisor by ID first, then by Name
-            const supervisor = usersList.find(u => u.id === task.supervisorId || u.fullName === task.supervisorId);
+            // Try to find supervisor by ID first, then by Name (Case Insensitive)
+            const normalize = (str: string) => str?.toString().toLowerCase().trim() || '';
+            const supervisor = usersList.find(u => u.id === task.supervisorId || normalize(u.fullName) === normalize(task.supervisorId));
             return {
                 ...task,
                 supervisorName: supervisor?.fullName || 'Unknown',
@@ -90,29 +92,72 @@ export const AdminTasks: React.FC = () => {
         });
     }, [enrichedTasks]);
 
+    // Calculate active principles and supervisors (those with running tasks)
+    const activePrinciples = useMemo(() => {
+        const runningTasks = enrichedTasks.filter(t => t.status !== TaskStatus.COMPLETED);
+        return new Set(runningTasks.map(t => t.principle).filter(p => p !== 'Unknown')).size;
+    }, [enrichedTasks]);
+
+    const activeSupervisors = useMemo(() => {
+        const runningTasks = enrichedTasks.filter(t => t.status !== TaskStatus.COMPLETED);
+        return new Set(runningTasks.map(t => t.supervisorName).filter(s => s !== 'Unknown')).size;
+    }, [enrichedTasks]);
+
     const CustomBarChart = ({ title, data }: { title: string, data: any[] }) => (
-        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card h-[400px] flex flex-col">
-            <h4 className="font-bold text-slate-700 mb-4">{title}</h4>
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card h-[400px] flex flex-col text-white">
+            <h4 className="font-bold text-white mb-4">{title}</h4>
             <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#64748b' }} interval={0} angle={-45} textAnchor="end" height={60} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} interval={0} angle={-45} textAnchor="end" height={60} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
                         <RechartsTooltip
-                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            cursor={{ fill: '#f1f5f9' }}
+                            contentStyle={{ backgroundColor: '#1e293b', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)', color: '#fff' }}
+                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                            itemStyle={{ color: '#fff' }}
                         />
-                        <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                        <Bar dataKey={TaskStatus.COMPLETED} name="Completed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
-                        <Bar dataKey={TaskStatus.ONGOING} name="Ongoing" stackId="a" fill="#8b5cf6" />
-                        <Bar dataKey={TaskStatus.PENDING} name="Pending" stackId="a" fill="#f97316" />
-                        <Bar dataKey={TaskStatus.OPEN} name="Open" stackId="a" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                        <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: '#fff' }} />
+                        {/* Bars for stacked statuses */}
+                        <Bar dataKey={TaskStatus.ONGOING} name="Ongoing" stackId="a" fill="#a78bfa">
+                            <LabelList dataKey={TaskStatus.ONGOING} position="inside" fill="#fff" fontSize={10} fontWeight="bold" />
+                        </Bar>
+                        <Bar dataKey={TaskStatus.PENDING} name="Pending" stackId="a" fill="#fb923c">
+                            <LabelList dataKey={TaskStatus.PENDING} position="inside" fill="#fff" fontSize={10} fontWeight="bold" />
+                        </Bar>
+                        <Bar dataKey={TaskStatus.OPEN} name="Open" stackId="a" fill="#94a3b8" radius={[4, 4, 0, 0]}>
+                            <LabelList dataKey={TaskStatus.OPEN} position="inside" fill="#1e293b" fontSize={10} fontWeight="bold" />
+                        </Bar>
+                        {/* Smooth Line with Dots for Completed */}
+                        <Line
+                            type="monotone"
+                            dataKey={TaskStatus.COMPLETED}
+                            name="Completed"
+                            stroke="#34d399"
+                            strokeWidth={3}
+                            dot={{ fill: '#34d399', strokeWidth: 2, r: 5 }}
+                            activeDot={{ r: 7, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
+                            label={{ position: 'top', fill: '#34d399', fontSize: 11, fontWeight: 'bold' }}
+                        />
+                    </ComposedChart>
                 </ResponsiveContainer>
             </div>
         </div>
     );
+
+    // DEBUG DATA
+    const debugData = useMemo(() => {
+        const uniqueSupervisorIds = Array.from(new Set(tasks.map(t => t.supervisorId)));
+        return uniqueSupervisorIds.map(id => {
+            const normalize = (str: string) => str?.toString().toLowerCase().trim() || '';
+            const match = usersList.find(u => u.id === id || normalize(u.fullName) === normalize(id));
+            return {
+                originalId: id,
+                mappedName: match?.fullName || 'FAILED',
+                mappedPrinciple: match?.principle || 'FAILED'
+            };
+        });
+    }, [tasks, usersList]);
 
     return (
         <div className="w-full print-content">
@@ -155,69 +200,85 @@ export const AdminTasks: React.FC = () => {
                 <div className="print-section print-no-break">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">1. Executive Summary</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Total SPV</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-indigo-600">{usersList.filter(u => u.role === 'SUPERVISOR').length}</h3>
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg no-print"><UserCog size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-indigo-400">{usersList.filter(u => u.role === 'SUPERVISOR').length}</h3>
+                                <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg no-print"><UserCog size={24} /></div>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Total</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-slate-800">{totalTasks}</h3>
-                                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg no-print"><CheckSquare size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-white">{totalTasks}</h3>
+                                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg no-print"><CheckSquare size={24} /></div>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Open</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-slate-600">{openTasks}</h3>
-                                <div className="p-2 bg-slate-50 text-slate-500 rounded-lg no-print"><Clock size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-slate-400">{openTasks}</h3>
+                                <div className="p-2 bg-slate-500/20 text-slate-400 rounded-lg no-print"><Clock size={24} /></div>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Pending</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-orange-600">{pendingTasks}</h3>
-                                <div className="p-2 bg-orange-50 text-orange-500 rounded-lg no-print"><Clock size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-orange-400">{pendingTasks}</h3>
+                                <div className="p-2 bg-orange-500/20 text-orange-400 rounded-lg no-print"><Clock size={24} /></div>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Ongoing</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-purple-600">{ongoingTasks}</h3>
-                                <div className="p-2 bg-purple-50 text-purple-500 rounded-lg no-print"><AlertTriangle size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-purple-400">{ongoingTasks}</h3>
+                                <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg no-print"><AlertTriangle size={24} /></div>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card flex flex-col justify-between">
+                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card flex flex-col justify-between text-white">
                             <p className="text-sm font-bold text-slate-400 uppercase">Done</p>
                             <div className="flex justify-between items-center">
-                                <h3 className="text-3xl md:text-4xl font-bold text-emerald-600">{completedTasks}</h3>
-                                <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg no-print"><CheckCircle2 size={24} /></div>
+                                <h3 className="text-3xl md:text-4xl font-bold text-emerald-400">{completedTasks}</h3>
+                                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg no-print"><CheckCircle2 size={24} /></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* --- TASK PROGRESS CIRCULAR CARD --- */}
+                <div className="print-section">
+                    <CircularProgress
+                        title="Task Progress"
+                        percentage={totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}
+                        total={totalTasks}
+                        completed={completedTasks}
+                        pending={pendingTasks + ongoingTasks}
+                        labelCompleted="Tasks Completed"
+                        labelPending="Tasks Hold"
+                        labelRunning="Running Task"
+                        activePrinciples={activePrinciples}
+                        activeSupervisors={activeSupervisors}
+                    />
+                </div>
+
                 {/* --- PROGRESS --- */}
                 <div className="print-section print-no-break">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">2. Completion Progress</h3>
-                    <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card">
-                        <h4 className="font-bold text-slate-700 mb-4 no-print">Progress by Principle</h4>
+                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-xl border border-slate-700 card text-white">
+                        <h4 className="font-bold text-white mb-4 no-print">Progress by Principle</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             {progressByPrinciple.map((item: any) => (
                                 <div key={item.name} className="mb-2 break-inside-avoid">
                                     <div className="flex justify-between text-sm mb-1">
-                                        <span className="font-bold text-slate-700">{item.name}</span>
-                                        <span className="font-bold text-blue-600">{item.pct}%</span>
+                                        <span className="font-bold text-slate-300">{item.name}</span>
+                                        <span className="font-bold text-blue-400">{item.pct}%</span>
                                     </div>
-                                    <div className="w-full bg-slate-100 rounded-full h-4 mb-1 border border-slate-200">
-                                        <div className="bg-blue-600 h-4 rounded-full flex items-center justify-end pr-2 text-white text-[10px] font-bold print:bg-blue-700" style={{ width: `${item.pct}%` }}>
+                                    <div className="w-full bg-slate-700 rounded-full h-4 mb-1 border border-slate-600">
+                                        <div className="bg-blue-500 h-4 rounded-full flex items-center justify-end pr-2 text-white text-[10px] font-bold print:bg-blue-700" style={{ width: `${item.pct}%` }}>
                                             {item.pct > 10 && `${item.pct}%`}
                                         </div>
                                     </div>
-                                    <div className="text-xs text-slate-500 text-right font-medium">{item.done}/{item.total} Done</div>
+                                    <div className="text-xs text-slate-400 text-right font-medium">{item.done}/{item.total} Done</div>
                                 </div>
                             ))}
                         </div>
@@ -280,6 +341,33 @@ export const AdminTasks: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* --- DEBUG SECTION (Temporary) --- */}
+                <div className="print-section no-print mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h3 className="text-lg font-bold text-red-800 mb-2">⚠️ Debug: Data Mapping Status</h3>
+                    <p className="text-sm text-red-600 mb-4">If charts are empty, check if 'Mapped Name' says FAILED below.</p>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                            <thead className="bg-red-100 text-red-800 font-bold">
+                                <tr>
+                                    <th className="p-2">Task Supervisor ID (From Sheet)</th>
+                                    <th className="p-2">Mapped Name</th>
+                                    <th className="p-2">Mapped Principle</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-red-100">
+                                {debugData.map((d, i) => (
+                                    <tr key={i}>
+                                        <td className="p-2 font-mono">{d.originalId}</td>
+                                        <td className={`p-2 font-bold ${d.mappedName === 'FAILED' ? 'text-red-600' : 'text-emerald-600'}`}>{d.mappedName}</td>
+                                        <td className="p-2">{d.mappedPrinciple}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
