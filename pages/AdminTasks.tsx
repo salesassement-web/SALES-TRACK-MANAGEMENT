@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { TaskStatus, TaskPriority } from '../types';
 import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer, UserCog } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { DonutChart } from '../components/DonutChart';
 
 export const AdminTasks: React.FC = () => {
     const { tasks, usersList, principles, updateTask, appConfig, currentUser } = useApp();
@@ -63,6 +64,47 @@ export const AdminTasks: React.FC = () => {
         });
         return Object.values(grouped);
     }, [enrichedTasks, timeFilter, groupFilter]);
+
+    // Donut Chart Data 1: Tasks by Principle
+    const tasksByPrinciple = useMemo(() => {
+        const distribution: Record<string, number> = {};
+
+        // Initialize with 0 for all principles
+        principles.forEach(p => {
+            if (p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO') {
+                distribution[p] = 0;
+            }
+        });
+
+        enrichedTasks.forEach(task => {
+            const p = task.principle;
+            if (p && p !== 'Unknown') {
+                if (distribution[p] !== undefined) {
+                    distribution[p]++;
+                } else {
+                    distribution[p] = (distribution[p] || 0) + 1;
+                }
+            }
+        });
+
+        return Object.entries(distribution)
+            .map(([name, value]) => ({ name, value }))
+            .filter(item => item.value > 0);
+    }, [enrichedTasks, principles]);
+
+    // Donut Chart Data 2: Tasks by Supervisor
+    const tasksBySupervisor = useMemo(() => {
+        const distribution: Record<string, number> = {};
+
+        enrichedTasks.forEach(task => {
+            const name = task.supervisorName;
+            distribution[name] = (distribution[name] || 0) + 1;
+        });
+
+        return Object.entries(distribution)
+            .map(([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value);
+    }, [enrichedTasks]);
 
     return (
         <div className="w-full print-content">
@@ -179,26 +221,24 @@ export const AdminTasks: React.FC = () => {
                 {/* --- CHART --- */}
                 <div className="print-section print-no-break">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">3. Analytics</h3>
-                    <div className="bg-white p-6 rounded-xl shadow-xl border border-slate-100 card h-[400px] w-full flex flex-col">
-                        <div className="flex-1 w-full min-h-0">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} iconSize={12} />
-                                    <Bar dataKey="completed" name="Completed" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} isAnimationActive={false} />
-                                    <Bar dataKey="ongoing" name="Ongoing" stackId="a" fill="#8b5cf6" isAnimationActive={false} />
-                                    <Bar dataKey="pending" name="Pending" stackId="a" fill="#f97316" isAnimationActive={false} />
-                                    <Bar dataKey="open" name="Open" stackId="a" fill="#cbd5e1" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                                        <LabelList dataKey="open" position="top" formatter={(val: any) => {
-                                            // Calculate total for the stack
-                                            return ''; // Stacked labels are tricky, let's just show top label if needed or keep clean
-                                        }} />
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Donut Chart 1: Tasks by Principle */}
+                        <DonutChart
+                            title="Tasks by Principle"
+                            data={tasksByPrinciple}
+                            dataKey="value"
+                            nameKey="name"
+                            colors={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']}
+                        />
+
+                        {/* Donut Chart 2: Tasks by Supervisor */}
+                        <DonutChart
+                            title="Tasks by Supervisor"
+                            data={tasksBySupervisor}
+                            dataKey="value"
+                            nameKey="name"
+                            colors={['#82ca9d', '#8884d8', '#ffc658', '#ff7300', '#0088FE']}
+                        />
                     </div>
                 </div>
 
