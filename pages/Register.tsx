@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { UserRole } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, ArrowLeft, Upload } from 'lucide-react';

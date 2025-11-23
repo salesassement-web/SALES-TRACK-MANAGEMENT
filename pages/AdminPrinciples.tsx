@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { Trash2, Plus, Layers } from 'lucide-react';
 
 export const AdminPrinciples: React.FC = () => {

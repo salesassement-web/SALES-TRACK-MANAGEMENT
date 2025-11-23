@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { UserRole } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, UserPlus } from 'lucide-react';

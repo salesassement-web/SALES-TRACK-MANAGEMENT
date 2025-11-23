@@ -731,9 +731,16 @@ function testReadEvaluations() {
 }
 
 function testReadTasks() {
-  const ss = SpreadsheetApp.openById('1hvpLdDk9AwWK5AZcL6Tuo3RnOzZgqhmuzOjBN6pZRko');
+  // Use getActiveSpreadsheet instead of openById to avoid permission issues
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log('Spreadsheet Name: ' + ss.getName());
+  Logger.log('Spreadsheet ID: ' + ss.getId());
+  
   const data = readTasks(ss);
+  Logger.log('Tasks found: ' + data.length);
   Logger.log(JSON.stringify(data, null, 2));
+  
+  return data;
 }
 
 function testReadPrinciples() {

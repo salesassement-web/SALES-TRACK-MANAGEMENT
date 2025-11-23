@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { UserRole, ScoreData, SalesPerson } from '../types';
 import { Save, Calendar, Filter, User, ChevronRight, ArrowLeft, Table as TableIcon, CheckCircle2 } from 'lucide-react';
 import { Avatar } from '../components/Avatar';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 
 export const TestDashboard: React.FC = () => {
     const { currentUser, salesList, usersList, evaluations } = useApp();

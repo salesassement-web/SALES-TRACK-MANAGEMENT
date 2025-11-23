@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { Download, FileJson, FileSpreadsheet, CheckCircle2, AlertCircle, Database } from 'lucide-react';
 import * as XLSX from 'xlsx';
 

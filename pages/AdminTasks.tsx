@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { TaskStatus, TaskPriority } from '../types';
 import { CheckSquare, Clock, AlertTriangle, CheckCircle2, BarChart2, Filter, Calendar, X, Check, Eye, Printer, UserCog } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';

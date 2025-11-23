@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useApp } from '../context/AppContext';
 import { Task, TaskPriority, TaskStatus } from '../types';
 import { CheckSquare, Clock, AlertTriangle, Plus, Calendar, Play, CheckCircle2, Camera, X, Save, Info } from 'lucide-react';
 

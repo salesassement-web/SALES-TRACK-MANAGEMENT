@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
-import { ScoreData } from '../types';
+import { useApp } from '../context/AppContext';
+import { ScoreData, TaskStatus } from '../types';
+import { CircularProgress } from '../components/CircularProgress';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   ComposedChart, Line, Area, LabelList
@@ -8,7 +9,7 @@ import {
 import { Users, AlertCircle, CheckCircle, ClipboardCheck, Printer } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
-  const { salesList, evaluations, usersList, principles, currentUser, kpiConfig, appConfig } = useApp();
+  const { salesList, evaluations, usersList, principles, currentUser, kpiConfig, appConfig, tasks } = useApp();
 
   const [trendFilter, setTrendFilter] = useState<'MONTH' | 'QUARTER' | 'YEAR'>('MONTH');
   const [progressFilter, setProgressFilter] = useState<'MONTH' | 'QUARTER' | 'YEAR'>('MONTH');
@@ -24,6 +25,13 @@ export const Dashboard: React.FC = () => {
 
   const totalSales = dashboardSalesList.length;
   const supervisorsCount = isSupervisor ? 1 : usersList.filter(u => u.role === 'SUPERVISOR').length;
+
+  // --- TASK STATISTICS CALCULATION ---
+  const dashboardTasks = isSupervisor ? tasks.filter(t => t.supervisorId === currentUser?.id) : tasks;
+  const totalTasks = dashboardTasks.length;
+  const completedTasks = dashboardTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
+  const pendingTasks = dashboardTasks.filter(t => t.status === TaskStatus.PENDING || t.status === TaskStatus.ONGOING).length;
+  const taskProgressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
@@ -155,6 +163,28 @@ export const Dashboard: React.FC = () => {
             } />
             <Card title="Status Stay" value={currentStayCount} sub="Score > 75" icon={CheckCircle} color="bg-indigo-500" />
             <Card title="Status Leave" value={currentLeaveCount} sub="Score < 75" icon={AlertCircle} color="bg-red-500" />
+          </div>
+        </div>
+
+        {/* SECTION 1.5: CIRCULAR PROGRESS CARDS */}
+        <div className="print-section">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Task Progress Circular Card */}
+            <CircularProgress
+              title="Task Progress"
+              percentage={taskProgressPercentage}
+              total={totalTasks}
+              completed={completedTasks}
+              pending={pendingTasks}
+            />
+            {/* Evaluation Progress Circular Card */}
+            <CircularProgress
+              title="Evaluation Progress"
+              percentage={Math.round((fullyRated / totalSales) * 100) || 0}
+              total={totalSales}
+              completed={fullyRated}
+              pending={totalSales - fullyRated}
+            />
           </div>
         </div>
 
