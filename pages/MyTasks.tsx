@@ -14,7 +14,9 @@ export const MyTasks: React.FC = () => {
     // State for Modals
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isExecuteModalOpen, setIsExecuteModalOpen] = useState(false);
+    const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
     const [activeTask, setActiveTask] = useState<Task | null>(null);
+    const [viewTask, setViewTask] = useState<Task | null>(null);
 
     // Create Form State
     const [newTaskData, setNewTaskData] = useState<Partial<Task>>({
@@ -74,6 +76,7 @@ export const MyTasks: React.FC = () => {
         if (currentUser) {
             addTask({
                 supervisorId: currentUser.id,
+                principle: currentUser.principle,
                 title: newTaskData.title!,
                 description: newTaskData.description!,
                 taskDate: newTaskData.taskDate!,
@@ -95,9 +98,25 @@ export const MyTasks: React.FC = () => {
 
     const openExecuteModal = (task: Task) => {
         setActiveTask(task);
+
+        const formatTime = (timeStr: string | undefined) => {
+            if (!timeStr) return '';
+            if (timeStr.includes('T')) {
+                try {
+                    const date = new Date(timeStr);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                } catch (e) {
+                    return '';
+                }
+            }
+            return timeStr;
+        };
+
         setExecuteData({
-            timeIn: task.timeIn || '',
-            timeOut: task.timeOut || '',
+            timeIn: formatTime(task.timeIn),
+            timeOut: formatTime(task.timeOut),
             attachment: task.attachment || ''
         });
         setIsExecuteModalOpen(true);
@@ -146,6 +165,11 @@ export const MyTasks: React.FC = () => {
     const getCurrentTime = () => {
         const now = new Date();
         return now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const openAttachmentModal = (task: Task) => {
+        setViewTask(task);
+        setIsAttachmentModalOpen(true);
     };
 
     return (
@@ -303,13 +327,15 @@ export const MyTasks: React.FC = () => {
                         <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase">
                             <tr>
                                 <th className="p-4 w-12">No</th>
+                                <th className="p-4 min-w-[120px]">ID Task</th>
                                 <th className="p-4 min-w-[150px]">Task Title</th>
                                 <th className="p-4 min-w-[200px]">Description</th>
                                 <th className="p-4 min-w-[120px]">Task Date</th>
-                                <th className="p-4">Priority</th>
                                 <th className="p-4 min-w-[120px]">Due Date</th>
-                                <th className="p-4 text-center">Evidence</th>
+                                <th className="p-4">Priority</th>
                                 <th className="p-4 text-center">Status</th>
+                                <th className="p-4 text-center">Evidence</th>
+                                <th className="p-4 text-center">Approval</th>
                                 <th className="p-4 text-center">Action</th>
                             </tr>
                         </thead>
@@ -317,9 +343,15 @@ export const MyTasks: React.FC = () => {
                             {filteredTasks.length > 0 ? filteredTasks.map((task, idx) => (
                                 <tr key={task.id} className="hover:bg-slate-50">
                                     <td className="p-4 text-slate-500">{idx + 1}</td>
+                                    <td className="p-4 font-mono text-xs text-slate-600">{task.id}</td>
                                     <td className="p-4 font-bold text-slate-800">{task.title}</td>
                                     <td className="p-4 text-slate-600 max-w-xs truncate" title={task.description}>{task.description}</td>
-                                    <td className="p-4 text-slate-500 whitespace-nowrap">{task.taskDate}</td>
+                                    <td className="p-4 text-slate-500 whitespace-nowrap">
+                                        {task.taskDate ? new Date(task.taskDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                    </td>
+                                    <td className="p-4 text-slate-500 whitespace-nowrap">
+                                        {task.dueDate ? new Date(task.dueDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                    </td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded text-xs font-bold
                                     ${task.priority === TaskPriority.HIGH ? 'bg-red-100 text-red-700' :
@@ -329,16 +361,6 @@ export const MyTasks: React.FC = () => {
                                             {task.priority}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-slate-500 whitespace-nowrap">{task.dueDate}</td>
-                                    <td className="p-4 text-center">
-                                        {task.attachment ? (
-                                            <a href={task.attachment} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs font-bold">
-                                                View Photo
-                                            </a>
-                                        ) : (
-                                            <span className="text-slate-300 text-xs">-</span>
-                                        )}
-                                    </td>
                                     <td className="p-4 text-center">
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold border
                                     ${task.status === TaskStatus.COMPLETED ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
@@ -347,6 +369,28 @@ export const MyTasks: React.FC = () => {
                                                         'bg-slate-50 text-slate-500 border-slate-200'
                                             }`}>
                                             {task.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-center">
+                                        {task.attachment ? (
+                                            <button
+                                                onClick={() => openAttachmentModal(task)}
+                                                className="text-blue-600 hover:underline text-xs font-bold cursor-pointer"
+                                            >
+                                                View Photo
+                                            </button>
+                                        ) : (
+                                            <span className="text-slate-300 text-xs">-</span>
+                                        )}
+                                    </td>
+                                    <td className="p-4 text-center">
+                                        <span className={`px-2 py-1 rounded text-xs font-bold
+                                            ${task.approvalStatus === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' :
+                                                task.approvalStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                                    task.approvalStatus === 'WAITING' ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-slate-100 text-slate-400'
+                                            }`}>
+                                            {task.approvalStatus || '-'}
                                         </span>
                                     </td>
                                     <td className="p-4 text-center">
@@ -361,7 +405,7 @@ export const MyTasks: React.FC = () => {
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={9} className="p-8 text-center text-slate-400">
+                                    <td colSpan={11} className="p-8 text-center text-slate-400">
                                         No tasks found in this period.
                                     </td>
                                 </tr>
@@ -535,6 +579,110 @@ export const MyTasks: React.FC = () => {
                             >
                                 <Save size={20} /> Simpan & Update Status
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ATTACHMENT DETAIL MODAL */}
+            {isAttachmentModalOpen && viewTask && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-scale-in">
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex justify-between items-center">
+                            <h3 className="text-white font-bold flex items-center gap-2"><Camera size={20} /> Task Evidence Detail</h3>
+                            <button onClick={() => setIsAttachmentModalOpen(false)} className="text-white/80 hover:text-white"><X size={20} /></button>
+                        </div>
+                        <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                            {/* Task Info */}
+                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <h4 className="font-bold text-slate-800 text-lg mb-2">{viewTask.title}</h4>
+                                <p className="text-sm text-slate-600 mb-3">{viewTask.description}</p>
+
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Task Date:</span>
+                                        <p className="text-slate-700">
+                                            {viewTask.taskDate ? new Date(viewTask.taskDate).toLocaleDateString('id-ID', {
+                                                day: '2-digit', month: 'long', year: 'numeric'
+                                            }) : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Due Date:</span>
+                                        <p className="text-slate-700">
+                                            {viewTask.dueDate ? new Date(viewTask.dueDate).toLocaleDateString('id-ID', {
+                                                day: '2-digit', month: 'long', year: 'numeric'
+                                            }) : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Time In:</span>
+                                        <p className="text-slate-700">
+                                            {viewTask.timeIn ? (
+                                                viewTask.timeIn.includes('T')
+                                                    ? new Date(viewTask.timeIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                                                    : viewTask.timeIn
+                                            ) : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Time Out:</span>
+                                        <p className="text-slate-700">
+                                            {viewTask.timeOut ? (
+                                                viewTask.timeOut.includes('T')
+                                                    ? new Date(viewTask.timeOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                                                    : viewTask.timeOut
+                                            ) : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Priority:</span>
+                                        <p>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold inline-block mt-1
+                                                ${viewTask.priority === TaskPriority.HIGH ? 'bg-red-100 text-red-700' :
+                                                    viewTask.priority === TaskPriority.MEDIUM ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {viewTask.priority}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Status:</span>
+                                        <p>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block mt-1
+                                                ${viewTask.status === TaskStatus.COMPLETED ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                                    viewTask.status === TaskStatus.PENDING ? 'bg-orange-50 text-orange-700 border border-orange-200' :
+                                                        viewTask.status === TaskStatus.ONGOING ? 'bg-purple-50 text-purple-700 border border-purple-200' :
+                                                            'bg-slate-50 text-slate-500 border border-slate-200'
+                                                }`}>
+                                                {viewTask.status}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Photo Evidence */}
+                            <div>
+                                <h5 className="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                    <Camera size={18} /> Photo Evidence
+                                </h5>
+                                <div className="w-full bg-slate-100 rounded-lg overflow-hidden border-2 border-slate-200">
+                                    {viewTask.attachment ? (
+                                        <img
+                                            src={viewTask.attachment}
+                                            alt="Task Evidence"
+                                            className="w-full h-auto object-contain max-h-96"
+                                        />
+                                    ) : (
+                                        <div className="p-8 text-center text-slate-400">
+                                            <Camera size={48} className="mx-auto mb-2 opacity-30" />
+                                            <p>No photo attached</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

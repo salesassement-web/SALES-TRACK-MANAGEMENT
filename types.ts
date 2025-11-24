@@ -72,6 +72,7 @@ export enum TaskStatus {
 export interface Task {
   id: string;
   supervisorId: string;
+  principle: string;
   title: string;
   description: string;
   taskDate: string;

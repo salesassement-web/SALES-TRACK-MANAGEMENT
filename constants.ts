@@ -1,212 +1,153 @@
 import { User, UserRole, SalesPerson, Evaluation, Task, TaskStatus, TaskPriority } from './types';
 
-const CURRENT_DATE = new Date();
-const CURRENT_MONTH = CURRENT_DATE.getMonth() + 1;
-const CURRENT_YEAR = CURRENT_DATE.getFullYear();
+
 
 export const DUMMY_SALES: SalesPerson[] = [
-  // SUPERVISOR: NINA AFRIDA (KALBE)
-  { id: 'S01', fullName: 'ANTO', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2024-01-15', avatar: '' },
-  { id: 'S02', fullName: 'BUDI', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2024-02-20', avatar: '' },
-  { id: 'S03', fullName: 'CITRA', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2024-03-10', avatar: '' },
-  { id: 'S04', fullName: 'DONO', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2024-04-05', avatar: '' },
-  { id: 'S05', fullName: 'EKA', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2024-05-12', avatar: '' },
-
-  // SUPERVISOR: SUNARIYANTO (UNILEVER)
-  { id: 'S06', fullName: 'ANI', principle: 'UNILEVER', supervisorName: 'SUNARIYANTO', joinDate: '2024-01-10', avatar: '' },
-  { id: 'S07', fullName: 'FAJAR', principle: 'UNILEVER', supervisorName: 'SUNARIYANTO', joinDate: '2024-02-15', avatar: '' },
-  { id: 'S08', fullName: 'GITA', principle: 'UNILEVER', supervisorName: 'SUNARIYANTO', joinDate: '2024-03-20', avatar: '' },
-  { id: 'S09', fullName: 'HADI', principle: 'UNILEVER', supervisorName: 'SUNARIYANTO', joinDate: '2024-04-25', avatar: '' },
-  { id: 'S10', fullName: 'INDAH', principle: 'UNILEVER', supervisorName: 'SUNARIYANTO', joinDate: '2024-05-30', avatar: '' },
-
-  // SUPERVISOR: WATI (KENVEU)
-  { id: 'S11', fullName: 'ADNY', principle: 'KENVEU', supervisorName: 'WATI', joinDate: '2024-01-05', avatar: '' },
-  { id: 'S12', fullName: 'JOKO', principle: 'KENVEU', supervisorName: 'WATI', joinDate: '2024-02-08', avatar: '' },
-  { id: 'S13', fullName: 'KIKI', principle: 'KENVEU', supervisorName: 'WATI', joinDate: '2024-03-15', avatar: '' },
-  { id: 'S14', fullName: 'LINA', principle: 'KENVEU', supervisorName: 'WATI', joinDate: '2024-04-22', avatar: '' },
-  { id: 'S15', fullName: 'MIKO', principle: 'KENVEU', supervisorName: 'WATI', joinDate: '2024-05-18', avatar: '' },
-
-  // SUPERVISOR: SHELA (PERFETTI)
-  { id: 'S16', fullName: 'ANSYI', principle: 'PERFETTI', supervisorName: 'SHELA', joinDate: '2024-01-25', avatar: '' },
-  { id: 'S17', fullName: 'NANDA', principle: 'PERFETTI', supervisorName: 'SHELA', joinDate: '2024-02-28', avatar: '' },
-  { id: 'S18', fullName: 'OSCAR', principle: 'PERFETTI', supervisorName: 'SHELA', joinDate: '2024-03-12', avatar: '' },
-  { id: 'S19', fullName: 'PUTRI', principle: 'PERFETTI', supervisorName: 'SHELA', joinDate: '2024-04-10', avatar: '' },
-  { id: 'S20', fullName: 'QORI', principle: 'PERFETTI', supervisorName: 'SHELA', joinDate: '2024-05-05', avatar: '' },
+  { id: 'SL1', fullName: 'M. ANDI KUSWOYO', principle: 'ATC - FFI', supervisorName: 'SUTRISNO', joinDate: '2024-12-31T17:00:00.000Z', avatar: '' },
+  { id: 'SL2', fullName: 'M. IDRIS', principle: 'ATC - FFI', supervisorName: 'SUTRISNO', joinDate: '2025-01-01T17:00:00.000Z', avatar: '' },
+  { id: 'SL3', fullName: 'M. IHKSAN FAUZI', principle: 'ATC - FFI', supervisorName: 'SUTRISNO', joinDate: '2025-01-02T17:00:00.000Z', avatar: '' },
+  { id: 'SL4', fullName: 'GERY ARIE YANIE', principle: 'BELLFOODS', supervisorName: 'TARDI PUTRA RISKI', joinDate: '2025-01-03T17:00:00.000Z', avatar: '' },
+  { id: 'SL5', fullName: 'M. BAGAS AL. FAJAR', principle: 'BELLFOODS', supervisorName: 'TARDI PUTRA RISKI', joinDate: '2025-01-04T17:00:00.000Z', avatar: '' },
+  { id: 'SL6', fullName: 'NOVIKA', principle: 'BELLFOODS', supervisorName: 'TARDI PUTRA RISKI', joinDate: '2025-01-05T17:00:00.000Z', avatar: '' },
+  { id: 'SL7', fullName: 'ADE SUHENDRA', principle: 'DUA KELINCI', supervisorName: 'ANWAR', joinDate: '2025-01-06T17:00:00.000Z', avatar: '' },
+  { id: 'SL8', fullName: 'DITO PRASETYA', principle: 'DUA KELINCI', supervisorName: 'ANWAR', joinDate: '2025-01-07T17:00:00.000Z', avatar: '' },
+  { id: 'SL9', fullName: 'ILHAM SUTIARJO', principle: 'DUA KELINCI', supervisorName: 'ANWAR', joinDate: '2025-01-08T17:00:00.000Z', avatar: '' },
+  { id: 'SL10', fullName: 'IRPAN HASIBUAN', principle: 'DUA KELINCI', supervisorName: 'ANWAR', joinDate: '2025-01-09T17:00:00.000Z', avatar: '' },
+  { id: 'SL11', fullName: 'MIMBAR', principle: 'DUA KELINCI', supervisorName: 'ANWAR', joinDate: '2025-01-10T17:00:00.000Z', avatar: '' },
+  { id: 'SL12', fullName: 'HERMAYANTI', principle: 'FFI - BINJAI', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-01-11T17:00:00.000Z', avatar: '' },
+  { id: 'SL13', fullName: 'RAFI MAILANDI', principle: 'FFI - BINJAI', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-01-12T17:00:00.000Z', avatar: '' },
+  { id: 'SL14', fullName: 'TAUFIK', principle: 'FFI - BINJAI', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-01-13T17:00:00.000Z', avatar: '' },
+  { id: 'SL15', fullName: 'WILA SEPTI PRATIWI GINTING', principle: 'FFI - BINJAI', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-01-14T17:00:00.000Z', avatar: '' },
+  { id: 'SL16', fullName: 'ZUL FADHLI', principle: 'FFI - BINJAI', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-01-15T17:00:00.000Z', avatar: '' },
+  { id: 'SL17', fullName: 'AIDIL GUSMAN', principle: 'FFI', supervisorName: 'AZIZUL', joinDate: '2025-01-16T17:00:00.000Z', avatar: '' },
+  { id: 'SL18', fullName: 'DAMAYANTI TAMBUNAN', principle: 'FFI', supervisorName: 'AZIZUL', joinDate: '2025-01-17T17:00:00.000Z', avatar: '' },
+  { id: 'SL19', fullName: 'HAFIZH', principle: 'FFI', supervisorName: 'AZIZUL', joinDate: '2025-01-18T17:00:00.000Z', avatar: '' },
+  { id: 'SL20', fullName: 'RAUZA', principle: 'FFI', supervisorName: 'AZIZUL', joinDate: '2025-01-19T17:00:00.000Z', avatar: '' },
+  { id: 'SL21', fullName: 'TRI RAHMADANI', principle: 'FFI', supervisorName: 'AZIZUL', joinDate: '2025-01-20T17:00:00.000Z', avatar: '' },
+  { id: 'SL22', fullName: 'ALI AKBAR', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-21T17:00:00.000Z', avatar: '' },
+  { id: 'SL23', fullName: 'ERIKSON SIMANJUNTAK', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-22T17:00:00.000Z', avatar: '' },
+  { id: 'SL24', fullName: 'LILI SUHERI', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-23T17:00:00.000Z', avatar: '' },
+  { id: 'SL25', fullName: 'M. AGUS IHWAN', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-24T17:00:00.000Z', avatar: '' },
+  { id: 'SL26', fullName: 'M. IRFAN LUBIS', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-25T17:00:00.000Z', avatar: '' },
+  { id: 'SL27', fullName: 'RISKI HAMDANI', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-26T17:00:00.000Z', avatar: '' },
+  { id: 'SL28', fullName: 'YULIANSYAH PUTRA', principle: 'FFI', supervisorName: 'TOPAN', joinDate: '2025-01-27T17:00:00.000Z', avatar: '' },
+  { id: 'SL29', fullName: 'AWALLUDIN', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-01-28T17:00:00.000Z', avatar: '' },
+  { id: 'SL30', fullName: 'M. HALIM', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-01-29T17:00:00.000Z', avatar: '' },
+  { id: 'SL31', fullName: 'SALMAH', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-01-30T17:00:00.000Z', avatar: '' },
+  { id: 'SL32', fullName: 'SILVANA ZAHRANI', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-01-31T17:00:00.000Z', avatar: '' },
+  { id: 'SL33', fullName: 'UCI LESTARI', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-02-01T17:00:00.000Z', avatar: '' },
+  { id: 'SL34', fullName: 'WINDA LESTARI', principle: 'FFI', supervisorName: 'REZA SYAHPUTRA', joinDate: '2025-02-02T17:00:00.000Z', avatar: '' },
+  { id: 'SL35', fullName: 'ANGGA', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-03T17:00:00.000Z', avatar: '' },
+  { id: 'SL36', fullName: 'IGA MAWARNI LUBIS', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-04T17:00:00.000Z', avatar: '' },
+  { id: 'SL37', fullName: 'DESMITA', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-05T17:00:00.000Z', avatar: '' },
+  { id: 'SL38', fullName: 'FAHRI', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-06T17:00:00.000Z', avatar: '' },
+  { id: 'SL39', fullName: 'FREDI BAGUS', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-07T17:00:00.000Z', avatar: '' },
+  { id: 'SL40', fullName: 'KHAIRANI', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-08T17:00:00.000Z', avatar: '' },
+  { id: 'SL41', fullName: 'M. IHKSAN', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-09T17:00:00.000Z', avatar: '' },
+  { id: 'SL42', fullName: 'RYAN ASHARY', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-10T17:00:00.000Z', avatar: '' },
+  { id: 'SL43', fullName: 'VIKA LESTARI', principle: 'KALBE', supervisorName: 'NINA AFRIDA', joinDate: '2025-02-11T17:00:00.000Z', avatar: '' },
+  { id: 'SL44', fullName: 'ELIO RICO', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-12T17:00:00.000Z', avatar: '' },
+  { id: 'SL45', fullName: 'MAHADI', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-13T17:00:00.000Z', avatar: '' },
+  { id: 'SL46', fullName: 'RIDO', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-14T17:00:00.000Z', avatar: '' },
+  { id: 'SL47', fullName: 'S.H IKA SAPUTRI', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-15T17:00:00.000Z', avatar: '' },
+  { id: 'SL48', fullName: 'TANTI ANDRIANI', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-16T17:00:00.000Z', avatar: '' },
+  { id: 'SL49', fullName: 'YUSNANI', principle: 'KENVEU', supervisorName: 'HAZARUL ASWATI', joinDate: '2025-02-17T17:00:00.000Z', avatar: '' },
+  { id: 'SL50', fullName: 'ADE GUSTI', principle: 'MAKUKU', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-02-18T17:00:00.000Z', avatar: '' },
+  { id: 'SL51', fullName: 'IRVAN ARDIANSYAH', principle: 'MAKUKU', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-02-19T17:00:00.000Z', avatar: '' },
+  { id: 'SL52', fullName: 'BAYU PERMANA', principle: 'MAKUKU', supervisorName: 'ERVINA SUKMAWATY', joinDate: '2025-02-20T17:00:00.000Z', avatar: '' },
+  { id: 'SL53', fullName: 'AYU CARINA', principle: 'PERFETTI', supervisorName: 'SUHERGAWATI', joinDate: '2025-02-21T17:00:00.000Z', avatar: '' },
+  { id: 'SL54', fullName: 'FITRIANI', principle: 'PERFETTI', supervisorName: 'SUHERGAWATI', joinDate: '2025-02-22T17:00:00.000Z', avatar: '' },
+  { id: 'SL55', fullName: 'YUNI PURWANTI', principle: 'PERFETTI', supervisorName: 'SUHERGAWATI', joinDate: '2025-02-23T17:00:00.000Z', avatar: '' },
+  { id: 'SL56', fullName: 'ILHAM PRANATA', principle: 'PERFETTI', supervisorName: 'ALI HASAN DAMANIK', joinDate: '2025-02-24T17:00:00.000Z', avatar: '' },
+  { id: 'SL57', fullName: 'MIRA YULIANTI', principle: 'PERFETTI', supervisorName: 'ALI HASAN DAMANIK', joinDate: '2025-02-25T17:00:00.000Z', avatar: '' },
+  { id: 'SL58', fullName: 'RATNA SARI', principle: 'PERFETTI', supervisorName: 'ALI HASAN DAMANIK', joinDate: '2025-02-26T17:00:00.000Z', avatar: '' },
+  { id: 'SL59', fullName: 'RICCA', principle: 'PERFETTI', supervisorName: 'ALI HASAN DAMANIK', joinDate: '2025-02-27T17:00:00.000Z', avatar: '' },
+  { id: 'SL60', fullName: 'RISKI MAHA IBRA', principle: 'PERFETTI', supervisorName: 'ALI HASAN DAMANIK', joinDate: '2025-02-28T17:00:00.000Z', avatar: '' },
+  { id: 'SL61', fullName: 'RIDHO NUGRAHA', principle: 'ULI - FS', supervisorName: 'RENO FATRIA', joinDate: '2025-03-01T17:00:00.000Z', avatar: '' },
+  { id: 'SL62', fullName: 'SABAR MEYDI ', principle: 'ULI - FS', supervisorName: 'RENO FATRIA', joinDate: '2025-03-02T17:00:00.000Z', avatar: '' },
+  { id: 'SL63', fullName: 'ZULKARNAIN', principle: 'ULI - FS', supervisorName: 'RENO FATRIA', joinDate: '2025-03-03T17:00:00.000Z', avatar: '' },
+  { id: 'SL64', fullName: 'ANNISA JULI', principle: 'ULI - FS', supervisorName: 'RENO FATRIA', joinDate: '2025-03-04T17:00:00.000Z', avatar: '' },
+  { id: 'SL65', fullName: 'ARIEF PRAYOGI', principle: 'UNILEVER', supervisorName: 'SUNARYANTO', joinDate: '2025-03-05T17:00:00.000Z', avatar: '' },
+  { id: 'SL66', fullName: 'CICI ANDAYANI', principle: 'UNILEVER', supervisorName: 'SUNARYANTO', joinDate: '2025-03-06T17:00:00.000Z', avatar: '' },
+  { id: 'SL67', fullName: 'M. DEDI SAPUTRA KOTO', principle: 'UNILEVER', supervisorName: 'SUNARYANTO', joinDate: '2025-03-07T17:00:00.000Z', avatar: '' },
+  { id: 'SL68', fullName: 'TRI DAMAYANTI', principle: 'UNILEVER', supervisorName: 'SUNARYANTO', joinDate: '2025-03-08T17:00:00.000Z', avatar: '' },
+  { id: 'SL69', fullName: 'IMAM FADLI AURA', principle: 'UNILEVER', supervisorName: 'MULIANDI', joinDate: '2025-03-09T17:00:00.000Z', avatar: '' },
+  { id: 'SL70', fullName: 'KUSWAGI', principle: 'UNILEVER', supervisorName: 'MULIANDI', joinDate: '2025-03-10T17:00:00.000Z', avatar: '' },
+  { id: 'SL71', fullName: 'RAHMAT WAHYUDI', principle: 'UNILEVER', supervisorName: 'MULIANDI', joinDate: '2025-03-11T17:00:00.000Z', avatar: '' },
+  { id: 'SL72', fullName: 'TENGKU SYAFRIAN HIDAYAT', principle: 'UNILEVER', supervisorName: 'MULIANDI', joinDate: '2025-03-12T17:00:00.000Z', avatar: '' },
+  { id: 'SL73', fullName: 'AIDIL SYAHPUTRA MATONDANG', principle: 'UNILEVER', supervisorName: 'ABDUL CAPAH', joinDate: '2025-03-13T17:00:00.000Z', avatar: '' },
+  { id: 'SL74', fullName: 'NURHALIJAH', principle: 'UNILEVER', supervisorName: 'ABDUL CAPAH', joinDate: '2025-03-14T17:00:00.000Z', avatar: '' },
+  { id: 'SL75', fullName: 'RAHMAD HUSEIN', principle: 'UNILEVER', supervisorName: 'ABDUL CAPAH', joinDate: '2025-03-15T17:00:00.000Z', avatar: '' },
+  { id: 'SL76', fullName: 'VENNY SYARADILA ALFI SINAGA', principle: 'UNILEVER', supervisorName: 'ABDUL CAPAH', joinDate: '2025-03-16T17:00:00.000Z', avatar: '' },
+  { id: 'SL77', fullName: 'M REZEKI TARIGAN', principle: 'WALLS - BINJAI', supervisorName: 'NADHIFA PUTRI', joinDate: '2025-03-17T17:00:00.000Z', avatar: '' },
+  { id: 'SL78', fullName: 'BONI SUHADA', principle: 'WALLS - BINJAI', supervisorName: 'NADHIFA PUTRI', joinDate: '2025-03-18T17:00:00.000Z', avatar: '' },
+  { id: 'SL79', fullName: 'HALOMOAN PENDAPOTAN', principle: 'WALLS - BINJAI', supervisorName: 'NADHIFA PUTRI', joinDate: '2025-03-19T17:00:00.000Z', avatar: '' },
+  { id: 'SL80', fullName: 'ANZANI', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-20T17:00:00.000Z', avatar: '' },
+  { id: 'SL81', fullName: 'DESI NANDA SARI', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-21T17:00:00.000Z', avatar: '' },
+  { id: 'SL82', fullName: 'ECO HANDOKO', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-22T17:00:00.000Z', avatar: '' },
+  { id: 'SL83', fullName: 'FATMA', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-23T17:00:00.000Z', avatar: '' },
+  { id: 'SL84', fullName: 'ROY IHKLAS', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-24T17:00:00.000Z', avatar: '' },
+  { id: 'SL85', fullName: 'SRI NINGSIH', principle: 'WALLS', supervisorName: 'CHANDRA GOMGOM', joinDate: '2025-03-25T17:00:00.000Z', avatar: '' },
+  { id: 'SL86', fullName: 'DINI RAVADILLAH', principle: 'WALLS', supervisorName: 'HERDIANA HASIBUAN', joinDate: '2025-03-26T17:00:00.000Z', avatar: '' },
+  { id: 'SL87', fullName: 'FIKRI MUHAMMAD', principle: 'WALLS', supervisorName: 'HERDIANA HASIBUAN', joinDate: '2025-03-27T17:00:00.000Z', avatar: '' },
+  { id: 'SL88', fullName: 'SABAM TUMANGGOR', principle: 'WALLS', supervisorName: 'HERDIANA HASIBUAN', joinDate: '2025-03-28T17:00:00.000Z', avatar: '' },
+  { id: 'SL89', fullName: 'TIARA MONITA', principle: 'WALLS', supervisorName: 'HERDIANA HASIBUAN', joinDate: '2025-03-29T17:00:00.000Z', avatar: '' },
+  { id: 'SL90', fullName: 'FEBRYANTI', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-03-30T17:00:00.000Z', avatar: '' },
+  { id: 'SL91', fullName: 'JAMSER SINAGA', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-03-31T17:00:00.000Z', avatar: '' },
+  { id: 'SL92', fullName: 'NAZARUDIN', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-04-01T17:00:00.000Z', avatar: '' },
+  { id: 'SL93', fullName: 'MAULIDYA BELLA', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-04-02T17:00:00.000Z', avatar: '' },
+  { id: 'SL94', fullName: 'WARDATUNNUR', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-04-03T17:00:00.000Z', avatar: '' },
+  { id: 'SL95', fullName: 'OGI ANUGRAH', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-04-04T17:00:00.000Z', avatar: '' },
+  { id: 'SL96', fullName: 'AHMAD SAIDI R', principle: 'GAGA', supervisorName: 'FERNANDO', joinDate: '2025-04-05T17:00:00.000Z', avatar: '' }
 ];
 
 export const DUMMY_USERS: User[] = [
-  { id: 'U01', fullName: 'ADMIN USER', role: UserRole.ADMIN, principle: 'ALL SANCHO' },
-  { id: 'U02', fullName: 'NINA AFRIDA', role: UserRole.SUPERVISOR, principle: 'KALBE' },
-  { id: 'U03', fullName: 'ADM KASIR', role: UserRole.KASIR, principle: 'ALL PRINCIPLE' },
-  { id: 'U04', fullName: 'HRD', role: UserRole.HRD, principle: 'ALL PRINCIPLE' },
-  { id: 'U05', fullName: 'SUNARIYANTO', role: UserRole.SUPERVISOR, principle: 'UNILEVER' },
-  { id: 'U06', fullName: 'WATI', role: UserRole.SUPERVISOR, principle: 'KENVEU' },
-  { id: 'U07', fullName: 'SHELA', role: UserRole.SUPERVISOR, principle: 'PERFETTI' },
+  { id: 'U1', fullName: 'Muhammad Anwar', role: UserRole.MANAGER, principle: 'ALL PRINCIPLE' },
+  { id: 'U2', fullName: 'Wawan', role: UserRole.MANAGER, principle: 'ALL PRINCIPLE' },
+  { id: 'U3', fullName: 'NONA', role: UserRole.HRD, principle: 'ALL PRINCIPLE' },
+  { id: 'U4', fullName: 'CHRISTINE', role: UserRole.ADMIN, principle: 'ALL PRINCIPLE' },
+  { id: 'U5', fullName: 'MELLYN', role: UserRole.ADMIN, principle: 'ALL PRINCIPLE' },
+  { id: 'U6', fullName: 'SUTRISNO', role: UserRole.SUPERVISOR, principle: 'ATC - FFI' },
+  { id: 'U7', fullName: 'TARDI PUTRA RISKI', role: UserRole.SUPERVISOR, principle: 'BELLFOODS' },
+  { id: 'U8', fullName: 'ANWAR', role: UserRole.SUPERVISOR, principle: 'DUA KELINCI' },
+  { id: 'U9', fullName: 'ERVINA SUKMAWATY', role: UserRole.SUPERVISOR, principle: 'FFI - BINJAI' },
+  { id: 'U10', fullName: 'AZIZUL', role: UserRole.SUPERVISOR, principle: 'FFI' },
+  { id: 'U11', fullName: 'TOPAN', role: UserRole.SUPERVISOR, principle: 'FFI' },
+  { id: 'U12', fullName: 'REZA SYAHPUTRA', role: UserRole.SUPERVISOR, principle: 'FFI' },
+  { id: 'U13', fullName: 'NINA AFRIDA', role: UserRole.SUPERVISOR, principle: 'KALBE' },
+  { id: 'U14', fullName: 'HAZARUL ASWATI', role: UserRole.SUPERVISOR, principle: 'KENVEU' },
+  { id: 'U15', fullName: 'ERVINA SUKMAWATY', role: UserRole.SUPERVISOR, principle: 'MAKUKU' },
+  { id: 'U16', fullName: 'SUHERGAWATI', role: UserRole.SUPERVISOR, principle: 'PERFETTI' },
+  { id: 'U17', fullName: 'ALI HASAN DAMANIK', role: UserRole.SUPERVISOR, principle: 'PERFETTI' },
+  { id: 'U18', fullName: 'RENO FATRIA', role: UserRole.SUPERVISOR, principle: 'ULI - FS' },
+  { id: 'U19', fullName: 'SUNARYANTO', role: UserRole.SUPERVISOR, principle: 'UNILEVER' },
+  { id: 'U20', fullName: 'MULIANDI', role: UserRole.SUPERVISOR, principle: 'UNILEVER' },
+  { id: 'U21', fullName: 'ABDUL CAPAH', role: UserRole.SUPERVISOR, principle: 'UNILEVER' },
+  { id: 'U22', fullName: 'NADHIFA PUTRI', role: UserRole.SUPERVISOR, principle: 'WALLS - BINJAI' },
+  { id: 'U23', fullName: 'CHANDRA GOMGOM', role: UserRole.SUPERVISOR, principle: 'WALLS' },
+  { id: 'U24', fullName: 'HERDIANA HASIBUAN', role: UserRole.SUPERVISOR, principle: 'WALLS' },
+  { id: 'U25', fullName: 'FERNANDO', role: UserRole.SUPERVISOR, principle: 'GAGA' }
 ];
 
 export const PRINCIPLES = [
-  'KALBE', 'UNILEVER', 'KENVEU', 'PERFETTI', 'ALL SANCHO', 'ALL PRINCIPLE'
+  'KALBE', 'UNILEVER', 'KENVEU', 'PERFETTI', 'DUA KELINCI', 'WALLS', 'BELLFOODS', 'ULI - FS', 'ATC - FFI', 'FFI', 'GAGA', 'WALLS - BINJAI', 'FFI - BINJAI', 'MAKUKU', 'ALL PRINCIPLE', 'ATC FFI', 'ALL SANCHO'
 ];
 
-// Dummy Evaluations for the 3 rated sales per supervisor
-// S01-S03, S06-S08, S11-S13, S16-S18 are rated.
-// Mix of scores to create varied statuses (STAY/LEAVE)
-
-export const DUMMY_EVALUATIONS: Evaluation[] = [
-  // KALBE (S01 STAY, S02 STAY, S03 LEAVE)
-  {
-    salesId: 'S01', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 90, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 85,
-      akurasiSetoran: 90, sisaFaktur: 85, overdue: 90, updateSetoran: 95,
-      absensi: 100, terlambat: 90, fingerScan: 95
-    },
-    finalScore: 88.85, status: 'STAY'
-  },
-  {
-    salesId: 'S02', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 80, activeOutlet: 80, effectiveCall: 75, itemPerTrans: 70,
-      akurasiSetoran: 85, sisaFaktur: 80, overdue: 75, updateSetoran: 80,
-      absensi: 95, terlambat: 85, fingerScan: 90
-    },
-    finalScore: 80.15, status: 'STAY'
-  },
-  {
-    salesId: 'S03', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 60, activeOutlet: 50, effectiveCall: 55, itemPerTrans: 60,
-      akurasiSetoran: 70, sisaFaktur: 60, overdue: 65, updateSetoran: 70,
-      absensi: 80, terlambat: 70, fingerScan: 75
-    },
-    finalScore: 63.5, status: 'LEAVE'
-  },
-
-  // UNILEVER (S06 STAY, S07 LEAVE, S08 STAY)
-  {
-    salesId: 'S06', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 95, activeOutlet: 90, effectiveCall: 90, itemPerTrans: 85,
-      akurasiSetoran: 95, sisaFaktur: 90, overdue: 95, updateSetoran: 90,
-      absensi: 100, terlambat: 100, fingerScan: 100
-    },
-    finalScore: 93.4, status: 'STAY'
-  },
-  {
-    salesId: 'S07', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 50, activeOutlet: 55, effectiveCall: 50, itemPerTrans: 40,
-      akurasiSetoran: 60, sisaFaktur: 50, overdue: 55, updateSetoran: 60,
-      absensi: 90, terlambat: 80, fingerScan: 80
-    },
-    finalScore: 58.7, status: 'LEAVE'
-  },
-  {
-    salesId: 'S08', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 85, activeOutlet: 85, effectiveCall: 80, itemPerTrans: 80,
-      akurasiSetoran: 80, sisaFaktur: 85, overdue: 80, updateSetoran: 85,
-      absensi: 100, terlambat: 95, fingerScan: 95
-    },
-    finalScore: 85.3, status: 'STAY'
-  },
-
-  // KENVEU (S11 STAY, S12 STAY, S13 STAY)
-  {
-    salesId: 'S11', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
-      akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
-      absensi: 80, terlambat: 80, fingerScan: 80
-    },
-    finalScore: 80.0, status: 'STAY'
-  },
-  {
-    salesId: 'S12', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 90, activeOutlet: 85, effectiveCall: 85, itemPerTrans: 80,
-      akurasiSetoran: 90, sisaFaktur: 85, overdue: 85, updateSetoran: 80,
-      absensi: 95, terlambat: 90, fingerScan: 90
-    },
-    finalScore: 87.6, status: 'STAY'
-  },
-  {
-    salesId: 'S13', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 78, activeOutlet: 75, effectiveCall: 70, itemPerTrans: 75,
-      akurasiSetoran: 85, sisaFaktur: 80, overdue: 80, updateSetoran: 85,
-      absensi: 90, terlambat: 85, fingerScan: 90
-    },
-    finalScore: 79.55, status: 'STAY'
-  },
-
-  // PERFETTI (S16 STAY, S17 STAY, S18 LEAVE)
-  {
-    salesId: 'S16', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 92, activeOutlet: 90, effectiveCall: 88, itemPerTrans: 85,
-      akurasiSetoran: 90, sisaFaktur: 90, overdue: 90, updateSetoran: 90,
-      absensi: 100, terlambat: 100, fingerScan: 100
-    },
-    finalScore: 91.3, status: 'STAY'
-  },
-  {
-    salesId: 'S17', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 80, activeOutlet: 80, effectiveCall: 80, itemPerTrans: 80,
-      akurasiSetoran: 80, sisaFaktur: 80, overdue: 80, updateSetoran: 80,
-      absensi: 80, terlambat: 80, fingerScan: 80
-    },
-    finalScore: 80.0, status: 'STAY'
-  },
-  {
-    salesId: 'S18', year: CURRENT_YEAR, month: CURRENT_MONTH,
-    supervisorRated: true, kasirRated: true, hrdRated: true,
-    scores: {
-      sellOut: 40, activeOutlet: 50, effectiveCall: 40, itemPerTrans: 50,
-      akurasiSetoran: 60, sisaFaktur: 60, overdue: 60, updateSetoran: 60,
-      absensi: 80, terlambat: 70, fingerScan: 70
-    },
-    finalScore: 55.4, status: 'LEAVE'
-  },
-];
+export { DUMMY_EVALUATIONS } from './constants_evaluations';
 
 export const DUMMY_TASKS: Task[] = [
-  // NINA AFRIDA - KALBE (U02)
-  { id: '1', supervisorId: 'U02', title: 'Visit Toko Mitra 10', description: 'Survey stok dan display produk baru', taskDate: '2025-11-23', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN, attachment: '' },
-  { id: '2', supervisorId: 'U02', title: 'Meeting Tim Sales', description: 'Review performance bulan November', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.PENDING, timeIn: '09:00', attachment: '' },
-  { id: '3', supervisorId: 'U02', title: 'Follow Up Client ABC', description: 'Telepon Pak Bambang untuk order', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.MEDIUM, status: TaskStatus.ONGOING, timeIn: '10:00', timeOut: '14:00', attachment: '' },
-  { id: '4', supervisorId: 'U02', title: 'Training Produk Baru', description: 'Pelatihan product knowledge untuk tim', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, attachment: '' },
-  { id: '5', supervisorId: 'U02', title: 'Visit ACE Hardware Senayan', description: 'Check kompetitor pricing dan promo', taskDate: '2025-11-21', dueDate: '2025-11-23', priority: TaskPriority.LOW, status: TaskStatus.COMPLETED, timeIn: '08:00', timeOut: '12:00', attachment: 'https://via.placeholder.com/150' },
-
-  // SUNARIYANTO - UNILEVER (U05)
-  { id: '6', supervisorId: 'U05', title: 'Audit Stock Unilever', description: 'Check inventory produk Unilever di gudang', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '08:00', attachment: '' },
-  { id: '7', supervisorId: 'U05', title: 'Presentasi ke Alfamart', description: 'Tawarkan produk baru ke buyer Alfamart', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '10:00', timeOut: '15:00', attachment: '' },
-  { id: '8', supervisorId: 'U05', title: 'Survey Pasar Modern', description: 'Cek harga kompetitor di supermarket', taskDate: '2025-11-24', dueDate: '2025-11-26', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
-  { id: '9', supervisorId: 'U05', title: 'Meeting Regional Manager', description: 'Diskusi strategi Q1 2026', taskDate: '2025-11-25', dueDate: '2025-11-27', priority: TaskPriority.HIGH, status: TaskStatus.OPEN, attachment: '' },
-  { id: '10', supervisorId: 'U05', title: 'Training Team Selling Skills', description: 'Pelatihan teknik penjualan untuk sales team', taskDate: '2025-11-26', dueDate: '2025-11-28', priority: TaskPriority.MEDIUM, status: TaskStatus.COMPLETED, attachment: '' },
-
-  // WATI - KENVEU (U06)
-  { id: '11', supervisorId: 'U06', title: 'Visit Distributor Utama', description: 'Follow up payment dan order baru', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '09:00', attachment: '' },
-  { id: '12', supervisorId: 'U06', title: 'Laporan Mingguan', description: 'Submit weekly sales report ke management', taskDate: '2025-11-22', dueDate: '2025-11-22', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '14:00', timeOut: '16:00', attachment: '' },
-  { id: '13', supervisorId: 'U06', title: 'Coaching Sales Junior', description: 'Mentoring 2 sales baru tentang product knowledge', taskDate: '2025-11-24', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
-  { id: '14', supervisorId: 'U06', title: 'Analisa Kompetitor', description: 'Research produk dan harga kompetitor brand sejenis', taskDate: '2025-11-25', dueDate: '2025-11-27', priority: TaskPriority.LOW, status: TaskStatus.OPEN, attachment: '' },
-
-  // SHELA - PERFETTI (U07)
-  { id: '15', supervisorId: 'U07', title: 'Roadshow Produk Baru', description: 'Event launching produk Perfetti di mall', taskDate: '2025-11-23', dueDate: '2025-11-24', priority: TaskPriority.HIGH, status: TaskStatus.ONGOING, timeIn: '10:00', attachment: '' },
-  { id: '16', supervisorId: 'U07', title: 'Negosiasi Harga Indomaret', description: 'Diskusi kontrak supply ke Indomaret', taskDate: '2025-11-22', dueDate: '2025-11-23', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '11:00', timeOut: '14:00', attachment: '' },
-  { id: '17', supervisorId: 'U07', title: 'Review Target Bulanan', description: 'Evaluasi pencapaian sales vs target November', taskDate: '2025-11-24', dueDate: '2025-11-25', priority: TaskPriority.MEDIUM, status: TaskStatus.PENDING, attachment: '' },
-  { id: '18', supervisorId: 'U07', title: 'Visit Toko Ritel Kecil', description: 'Survey dan stock check ke 10 toko retail', taskDate: '2025-11-25', dueDate: '2025-11-26', priority: TaskPriority.LOW, status: TaskStatus.OPEN, attachment: '' },
-  { id: '19', supervisorId: 'U07', title: 'Briefing Tim Mingguan', description: 'Weekly meeting dengan seluruh sales team', taskDate: '2025-11-26', dueDate: '2025-11-26', priority: TaskPriority.MEDIUM, status: TaskStatus.COMPLETED, attachment: '' },
+  { id: 'T1', supervisorId: 'U6', principle: 'ATC - FFI', title: 'Visit Toko A', description: 'Survey', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-24T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.OPEN },
+  { id: 'T2', supervisorId: 'U7', principle: 'BELLFOODS', title: 'Meeting Sales', description: 'Review', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-23T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.PENDING, timeIn: '1899-12-30T02:17:56.000Z', approvalStatus: 'WAITING' },
+  { id: 'T3', supervisorId: 'U6', principle: 'ATC - FFI', title: 'Audit Stock', description: 'Check inventory', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-22T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '1899-12-30T15:02:56.000Z', timeOut: '1899-12-30T04:04:56.000Z' },
+  { id: 'T4', supervisorId: 'U6', principle: 'ATC - FFI', title: 'Visit Distributor', description: 'Follow up', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-23T17:00:00.000Z', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN },
+  { id: 'T5', supervisorId: 'U7', principle: 'BELLFOODS', title: 'Roadshow', description: 'Event launching', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-23T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.COMPLETED, timeIn: '1899-12-30T03:17:56.000Z', timeOut: '1899-12-30T08:17:56.000Z', attachment: 'https://...', approvalStatus: 'APPROVED' },
+  { id: 'T6', supervisorId: 'U8', principle: 'DUA KELINCI', title: 'Report Penjualan Q4', description: 'Compile sales report untuk management', taskDate: '2025-11-24T17:00:00.000Z', dueDate: '2025-11-29T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.OPEN },
+  { id: 'T7', supervisorId: 'U8', principle: 'DUA KELINCI', title: 'Customer Visit - PT XYZ', description: 'Presentasi produk ke klien baru', taskDate: '2025-11-25T17:00:00.000Z', dueDate: '2025-11-27T17:00:00.000Z', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN },
+  { id: 'T8', supervisorId: 'U8', principle: 'DUA KELINCI', title: 'Visit Toko A', description: 'Check inventory', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-24T17:00:00.000Z', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN },
+  { id: 'T9', supervisorId: 'U9', principle: 'FFI - BINJAI', title: 'Meeting Team', description: 'Monthly review', taskDate: '2025-11-22T17:00:00.000Z', dueDate: '2025-11-23T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.PENDING, timeIn: '1899-12-30T02:17:56.000Z' },
+  { id: 'T10', supervisorId: 'U9', principle: 'FFI', title: 'Follow Up Client', description: 'Call Mr. Budi', taskDate: '2025-11-21T17:00:00.000Z', dueDate: '2025-11-22T17:00:00.000Z', priority: TaskPriority.LOW, status: TaskStatus.COMPLETED, timeIn: '1899-12-30T03:17:56.000Z', timeOut: '1899-12-30T08:17:56.000Z', attachment: '(url foto)' },
+  { id: 'T11', supervisorId: 'U10', principle: 'FFI', title: 'Training Produk Baru', description: 'Pelatihan product knowledge untuk tim', taskDate: '2025-11-23T17:00:00.000Z', dueDate: '2025-11-25T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.OPEN },
+  { id: 'T12', supervisorId: 'U11', principle: 'FFI', title: 'Visit ACE Hardware Senayan', description: 'Check kompetitor pricing dan promo', taskDate: '2025-11-20T17:00:00.000Z', dueDate: '2025-11-22T17:00:00.000Z', priority: TaskPriority.LOW, status: TaskStatus.COMPLETED, timeIn: '1899-12-30T01:17:56.000Z', timeOut: '1899-12-30T05:17:56.000Z', attachment: 'https://via.placeholder.com/150' },
+  { id: 'T13', supervisorId: 'U11', principle: 'KALBE', title: 'Report Penjualan Q4', description: 'Compile sales report untuk management', taskDate: '2025-11-24T17:00:00.000Z', dueDate: '2025-11-29T17:00:00.000Z', priority: TaskPriority.HIGH, status: TaskStatus.OPEN },
+  { id: 'T14', supervisorId: 'U10', principle: 'KENVEU', title: 'Customer Visit - PT XYZ', description: 'Presentasi produk ke klien baru', taskDate: '2025-11-25T17:00:00.000Z', dueDate: '2025-11-27T17:00:00.000Z', priority: TaskPriority.MEDIUM, status: TaskStatus.OPEN }
 ];

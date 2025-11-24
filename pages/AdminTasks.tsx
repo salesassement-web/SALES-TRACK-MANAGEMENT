@@ -21,7 +21,7 @@ export const AdminTasks: React.FC = () => {
             return {
                 ...task,
                 supervisorName: supervisor?.fullName || 'Unknown',
-                principle: supervisor?.principle || 'Unknown'
+                // DON'T overwrite task.principle - it already exists in task object
             };
         });
     }, [tasks, usersList]);
@@ -148,7 +148,7 @@ export const AdminTasks: React.FC = () => {
     // DEBUG DATA
     const debugData = useMemo(() => {
         const uniqueSupervisorIds = Array.from(new Set(tasks.map(t => t.supervisorId)));
-        return uniqueSupervisorIds.map(id => {
+        return uniqueSupervisorIds.map((id: string) => {
             const normalize = (str: string) => str?.toString().toLowerCase().trim() || '';
             const match = usersList.find(u => u.id === id || normalize(u.fullName) === normalize(id));
             return {
@@ -308,10 +308,15 @@ export const AdminTasks: React.FC = () => {
                             <table className="w-full text-left text-xs min-w-[650px] md:min-w-full">
                                 <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-300 uppercase">
                                     <tr>
-                                        <th className="p-3">Task Name</th>
-                                        <th className="p-3">Assigned To</th>
-                                        <th className="p-3 text-center">Deadline</th>
+                                        <th className="p-3">ID Task</th>
+                                        <th className="p-3">Principle</th>
+                                        <th className="p-3">Supervisor</th>
+                                        <th className="p-3">Title</th>
+                                        <th className="p-3">Description</th>
                                         <th className="p-3 text-center">Priority</th>
+                                        <th className="p-3 text-center">Time In</th>
+                                        <th className="p-3 text-center">Time Out</th>
+                                        <th className="p-3 text-center">Attachment</th>
                                         <th className="p-3 text-center">Status</th>
                                         <th className="p-3 text-center">Approval</th>
                                     </tr>
@@ -319,52 +324,69 @@ export const AdminTasks: React.FC = () => {
                                 <tbody className="divide-y divide-slate-100">
                                     {enrichedTasks.map((task) => (
                                         <tr key={task.id} className="hover:bg-slate-50 break-inside-avoid">
-                                            <td className="p-3 font-bold text-slate-800">{task.title}</td>
+                                            <td className="p-3 font-mono text-[10px] text-slate-600">{task.id}</td>
+                                            <td className="p-3 text-slate-700 font-bold">{task.principle}</td>
                                             <td className="p-3">
                                                 <div className="font-bold text-slate-700">{task.supervisorName}</div>
-                                                <div className="text-[10px] text-slate-500">{task.principle}</div>
                                             </td>
-                                            <td className="p-3 text-center text-slate-600">{task.dueDate}</td>
+                                            <td className="p-3 font-bold text-slate-800">{task.title}</td>
+                                            <td className="p-3 text-slate-600 max-w-[200px] truncate" title={task.description}>{task.description}</td>
                                             <td className="p-3 text-center">
-                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${task.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-blue-100 text-blue-700 border-blue-200'}`}>
+                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${task.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' : task.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-blue-100 text-blue-700 border-blue-200'}`}>
                                                     {task.priority}
                                                 </span>
                                             </td>
-                                            <td className="p-3 text-center font-bold text-slate-700">{task.status}</td>
+                                            <td className="p-3 text-center text-slate-600">
+                                                {task.timeIn ? (
+                                                    task.timeIn.includes('T')
+                                                        ? new Date(task.timeIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                                                        : task.timeIn
+                                                ) : '-'}
+                                            </td>
+                                            <td className="p-3 text-center text-slate-600">
+                                                {task.timeOut ? (
+                                                    task.timeOut.includes('T')
+                                                        ? new Date(task.timeOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                                                        : task.timeOut
+                                                ) : '-'}
+                                            </td>
                                             <td className="p-3 text-center">
-                                                {task.approvalStatus === 'APPROVED' ? <span className="text-emerald-600 font-bold">Approved</span> : task.approvalStatus === 'REJECTED' ? <span className="text-red-600 font-bold">Rejected</span> : '-'}
+                                                {task.attachment ? (
+                                                    <a href={task.attachment} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-[10px] font-bold">
+                                                        View
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-slate-300">-</span>
+                                                )}
+                                            </td>
+                                            <td className="p-3 text-center">
+                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase
+                                                    ${task.status === TaskStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700' :
+                                                        task.status === TaskStatus.ONGOING ? 'bg-purple-100 text-purple-700' :
+                                                            task.status === TaskStatus.PENDING ? 'bg-orange-100 text-orange-700' :
+                                                                'bg-slate-100 text-slate-600'
+                                                    }`}>
+                                                    {task.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-3 text-center">
+                                                {task.approvalStatus ? (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 w-fit ${task.approvalStatus === 'APPROVED' ? 'bg-green-500/20 text-green-400' :
+                                                        task.approvalStatus === 'REJECTED' ? 'bg-red-500/20 text-red-400' :
+                                                            'bg-yellow-500/20 text-yellow-400'
+                                                        }`}>
+                                                        {task.approvalStatus === 'APPROVED' && <CheckCircle2 size={12} />}
+                                                        {task.approvalStatus === 'REJECTED' && <X size={12} />}
+                                                        {task.approvalStatus === 'WAITING' && <Clock size={12} />}
+                                                        {task.approvalStatus}
+                                                    </span>
+                                                ) : '-'}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                </div>
-
-                {/* --- DEBUG SECTION (Temporary) --- */}
-                <div className="print-section no-print mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-red-800 mb-2">⚠️ Debug: Data Mapping Status</h3>
-                    <p className="text-sm text-red-600 mb-4">If charts are empty, check if 'Mapped Name' says FAILED below.</p>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
-                            <thead className="bg-red-100 text-red-800 font-bold">
-                                <tr>
-                                    <th className="p-2">Task Supervisor ID (From Sheet)</th>
-                                    <th className="p-2">Mapped Name</th>
-                                    <th className="p-2">Mapped Principle</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-red-100">
-                                {debugData.map((d, i) => (
-                                    <tr key={i}>
-                                        <td className="p-2 font-mono">{d.originalId}</td>
-                                        <td className={`p-2 font-bold ${d.mappedName === 'FAILED' ? 'text-red-600' : 'text-emerald-600'}`}>{d.mappedName}</td>
-                                        <td className="p-2">{d.mappedPrinciple}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 

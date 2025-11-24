@@ -26,12 +26,6 @@ export const Dashboard: React.FC = () => {
   const currentYear = currentDate.getFullYear();
   const currentQuarter = Math.ceil(currentMonth / 3);
 
-  const currentStayCount = dashboardEvaluations.filter(e => e.status === 'STAY' && e.month === currentMonth && e.year === currentYear).length;
-  const currentLeaveCount = dashboardEvaluations.filter(e => e.status === 'LEAVE' && e.month === currentMonth && e.year === currentYear).length;
-
-  const currentMonthEvals = dashboardEvaluations.filter(e => e.month === currentMonth && e.year === currentYear);
-  const fullyRated = currentMonthEvals.filter(e => e.supervisorRated && e.kasirRated && e.hrdRated).length;
-
   const getFilteredEvaluations = () => {
     return dashboardEvaluations.filter(ev => {
       const evMonth = ev.month;
@@ -62,6 +56,13 @@ export const Dashboard: React.FC = () => {
   };
 
   const filteredEvaluations = getFilteredEvaluations();
+
+  const currentStayCount = filteredEvaluations.filter(e => e.status === 'STAY').length;
+  const currentLeaveCount = filteredEvaluations.filter(e => e.status === 'LEAVE').length;
+
+  const fullyRated = filteredEvaluations.filter(e => e.supervisorRated && e.kasirRated && e.hrdRated).length;
+
+
 
   const getStatusData = () => {
     // Use the globally filtered evaluations
@@ -171,6 +172,67 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 
+  const totalPrinciples = principles.filter(p => p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO').length;
+
+  // Calculate Completed Supervisors (All their sales are rated)
+  const completedSupervisors = usersList
+    .filter(u => u.role === 'SUPERVISOR')
+    .filter(spv => {
+      const spvSales = dashboardSalesList.filter(s =>
+        (s.supervisorId && s.supervisorId === spv.id) ||
+        (s.supervisorName && s.supervisorName === spv.fullName)
+      );
+      if (spvSales.length === 0) return false;
+      const ratedCount = spvSales.filter(s => filteredEvaluations.some(e => e.salesId === s.id && e.supervisorRated && e.kasirRated && e.hrdRated)).length;
+      return ratedCount === spvSales.length;
+    }).length;
+
+  // Calculate Completed Principles (All sales in principle are rated)
+  const completedPrinciples = principles
+    .filter(p => p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO')
+    .filter(principle => {
+      const divSales = dashboardSalesList.filter(s => s.principle === principle);
+      if (divSales.length === 0) return false;
+      const ratedCount = divSales.filter(s => filteredEvaluations.some(e => e.salesId === s.id && e.supervisorRated && e.kasirRated && e.hrdRated)).length;
+      return ratedCount === divSales.length;
+    }).length;
+
+  // Calculate Breakdown for Status Stay
+  const spvWithStay = usersList
+    .filter(u => u.role === 'SUPERVISOR')
+    .filter(spv => {
+      const spvSales = dashboardSalesList.filter(s =>
+        (s.supervisorId && s.supervisorId === spv.id) ||
+        (s.supervisorName && s.supervisorName === spv.fullName)
+      );
+      return spvSales.some(s => filteredEvaluations.some(e => e.salesId === s.id && e.status === 'STAY'));
+    }).length;
+
+  const principleWithStay = principles
+    .filter(p => p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO')
+    .filter(principle => {
+      const divSales = dashboardSalesList.filter(s => s.principle === principle);
+      return divSales.some(s => filteredEvaluations.some(e => e.salesId === s.id && e.status === 'STAY'));
+    }).length;
+
+  // Calculate Breakdown for Status Leave
+  const spvWithLeave = usersList
+    .filter(u => u.role === 'SUPERVISOR')
+    .filter(spv => {
+      const spvSales = dashboardSalesList.filter(s =>
+        (s.supervisorId && s.supervisorId === spv.id) ||
+        (s.supervisorName && s.supervisorName === spv.fullName)
+      );
+      return spvSales.some(s => filteredEvaluations.some(e => e.salesId === s.id && e.status === 'LEAVE'));
+    }).length;
+
+  const principleWithLeave = principles
+    .filter(p => p !== 'ALL PRINCIPLE' && p !== 'ALL SANCHO')
+    .filter(principle => {
+      const divSales = dashboardSalesList.filter(s => s.principle === principle);
+      return divSales.some(s => filteredEvaluations.some(e => e.salesId === s.id && e.status === 'LEAVE'));
+    }).length;
+
   return (
     <div className="w-full print-content">
       {/* Header Controls - No Print */}
@@ -224,20 +286,52 @@ export const Dashboard: React.FC = () => {
         <div className="print-section">
           <h3 className="text-lg font-bold text-slate-800 mb-2 border-b pb-1 uppercase hidden print:block">1. Executive Summary</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <Card title="Total Sales Team" value={totalSales} sub={`${supervisorsCount} Supervisors`} icon={Users} color="bg-blue-500" />
+            <Card title="Total Sales Team" icon={Users} color="bg-blue-500" customContent={
+              <div className="mt-2">
+                <h3 className="text-3xl md:text-4xl font-bold text-white mt-2">{totalSales}</h3>
+                <p className="text-xs text-slate-400 mt-1">Sales Members</p>
+                <div className="flex justify-between text-[10px] text-slate-300 mt-2 border-t border-slate-700 pt-2">
+                  <span>SPV: {supervisorsCount}</span>
+                  <span>Principle: {totalPrinciples}</span>
+                </div>
+              </div>
+            } />
             <Card title="Evaluation Progress" icon={ClipboardCheck} color="bg-emerald-500" customContent={
               <div className="mt-2">
                 <div className="flex justify-between text-2xl font-bold mb-1">
                   <span className="text-white">{fullyRated}/{totalSales}</span>
                   <span className="text-emerald-400">{Math.round((fullyRated / totalSales) * 100) || 0}%</span>
                 </div>
-                <div className="w-full bg-slate-700 rounded-full h-3">
+                <div className="w-full bg-slate-700 rounded-full h-3 mb-1">
                   <div className="bg-emerald-500 h-3 rounded-full print:bg-emerald-600" style={{ width: `${(fullyRated / totalSales) * 100}%` }}></div>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">Team Evaluated</p>
+                <div className="flex justify-between text-[10px] text-slate-300 mt-2 border-t border-slate-700 pt-2">
+                  <span>SPV: {completedSupervisors}/{supervisorsCount}</span>
+                  <span>Principle: {completedPrinciples}/{totalPrinciples}</span>
                 </div>
               </div>
             } />
-            <Card title="Status Stay" value={currentStayCount} sub="Score > 75" icon={CheckCircle} color="bg-indigo-500" />
-            <Card title="Status Leave" value={currentLeaveCount} sub="Score < 75" icon={AlertCircle} color="bg-red-500" />
+            <Card title="Status Stay" icon={CheckCircle} color="bg-indigo-500" customContent={
+              <div className="mt-2">
+                <h3 className="text-3xl md:text-4xl font-bold text-white mt-2">{currentStayCount}</h3>
+                <p className="text-xs text-slate-400 mt-1">Score {'>'} 75</p>
+                <div className="flex justify-between text-[10px] text-slate-300 mt-2 border-t border-slate-700 pt-2">
+                  <span>SPV: {spvWithStay}/{supervisorsCount}</span>
+                  <span>Principle: {principleWithStay}/{totalPrinciples}</span>
+                </div>
+              </div>
+            } />
+            <Card title="Status Leave" icon={AlertCircle} color="bg-red-500" customContent={
+              <div className="mt-2">
+                <h3 className="text-3xl md:text-4xl font-bold text-white mt-2">{currentLeaveCount}</h3>
+                <p className="text-xs text-slate-400 mt-1">Score {'<'} 75</p>
+                <div className="flex justify-between text-[10px] text-slate-300 mt-2 border-t border-slate-700 pt-2">
+                  <span>SPV: {spvWithLeave}/{supervisorsCount}</span>
+                  <span>Principle: {principleWithLeave}/{totalPrinciples}</span>
+                </div>
+              </div>
+            } />
           </div>
         </div>
 

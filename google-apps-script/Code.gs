@@ -234,7 +234,7 @@ function readEvaluations(ss) {
  */
 function readTasks(ss) {
   const sheet = getOrCreateSheet(ss, SHEET_NAMES.TASKS, [
-    'id', 'supervisorId', 'title', 'description', 'taskDate', 'dueDate',
+    'id', 'supervisorId', 'principle', 'title', 'description', 'taskDate', 'dueDate',
     'priority', 'status', 'timeIn', 'timeOut', 'attachment', 'approvalStatus'
   ]);
   
@@ -250,16 +250,17 @@ function readTasks(ss) {
     tasks.push({
       id: row[0],
       supervisorId: row[1],
-      title: row[2],
-      description: row[3],
-      taskDate: row[4],
-      dueDate: row[5],
-      priority: row[6],
-      status: row[7],
-      timeIn: row[8] || undefined,
-      timeOut: row[9] || undefined,
-      attachment: row[10] || undefined,
-      approvalStatus: row[11] || undefined
+      principle: row[2] || undefined,
+      title: row[3],
+      description: row[4],
+      taskDate: row[5],
+      dueDate: row[6],
+      priority: row[7],
+      status: row[8],
+      timeIn: row[9] || undefined,
+      timeOut: row[10] || undefined,
+      attachment: row[11] || undefined,
+      approvalStatus: row[12] || undefined
     });
   }
   
@@ -329,11 +330,11 @@ function saveEvaluation(evaluation) {
     scores.absensi || '',
     scores.terlambat || '',
     scores.fingerScan || '',
-    evaluation.supervisorRated ? 'TRUE' : 'FALSE',
-    evaluation.kasirRated ? 'TRUE' : 'FALSE',
-    evaluation.hrdRated ? 'TRUE' : 'FALSE',
-    evaluation.finalScore,
-    evaluation.status
+    evaluation.supervisorRated || false,
+    evaluation.kasirRated || false,
+    evaluation.hrdRated || false,
+    evaluation.finalScore || '',
+    evaluation.status || ''
   ];
   
   if (rowIndex > 0) {
@@ -346,7 +347,7 @@ function saveEvaluation(evaluation) {
   
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
-    message: 'Evaluation saved'
+    message: 'Evaluation saved successfully'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -357,17 +358,17 @@ function saveTask(task) {
   if (!task) throw new Error("DO NOT RUN THIS DIRECTLY. Run 'testSaveTask' instead.");
   const ss = SpreadsheetApp.openById('1hvpLdDk9AwWK5AZcL6Tuo3RnOzZgqhmuzOjBN6pZRko');
   const sheet = getOrCreateSheet(ss, SHEET_NAMES.TASKS, [
-    'id', 'supervisorId', 'title', 'description', 'taskDate', 'dueDate',
+    'id', 'supervisorId', 'principle', 'title', 'description', 'taskDate', 'dueDate',
     'priority', 'status', 'timeIn', 'timeOut', 'attachment', 'approvalStatus'
   ]);
   
-  // Cari baris yang cocok berdasarkan id
+  // Find matching row based on id
   const data = sheet.getDataRange().getValues();
   let rowIndex = -1;
   
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === task.id) {
-      rowIndex = i + 1;
+      rowIndex = i + 1; // Sheet row index (1-based)
       break;
     }
   }
@@ -375,6 +376,7 @@ function saveTask(task) {
   const rowData = [
     task.id,
     task.supervisorId,
+    task.principle || '',
     task.title,
     task.description,
     task.taskDate,
@@ -397,7 +399,7 @@ function saveTask(task) {
   
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
-    message: 'Task saved'
+    message: 'Task saved successfully'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -506,7 +508,7 @@ function setupInitialData() {
   ]);
   
   getOrCreateSheet(ss, SHEET_NAMES.TASKS, [
-    'id', 'supervisorId', 'title', 'description', 'taskDate', 'dueDate',
+    'id', 'supervisorId', 'principle', 'title', 'description', 'taskDate', 'dueDate',
     'priority', 'status', 'timeIn', 'timeOut', 'attachment', 'approvalStatus'
   ]);
 
@@ -702,6 +704,7 @@ function testSaveTask() {
   const result = saveTask({
     id: "TEST_TASK_" + new Date().getTime(),
     supervisorId: "TEST_USER",
+    principle: "KALBE",
     title: "Test Task Manual",
     description: "Created via Apps Script Editor",
     taskDate: "2024-01-01",

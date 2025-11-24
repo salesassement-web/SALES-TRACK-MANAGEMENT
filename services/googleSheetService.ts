@@ -1,7 +1,7 @@
 import { Evaluation, SalesPerson, Task, User } from '../types';
 
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-52b4tKSKu1zxQ0GgE4uIqdBejP3SWYzzGw0xhTlttO0D2My7Z5aVofk-r6jfeJqU/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdx0WkHPrGOaHjaJaURU0xPDXHO6YyfTvs61WCRX7Vcz3-sLO8HYZBDgbK39G8PkfO/exec";
 
 export interface AppData {
   users: User[];
