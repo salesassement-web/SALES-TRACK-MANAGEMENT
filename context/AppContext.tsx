@@ -318,7 +318,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           const match = t.id.match(/^T(\d+)$/);
           return match ? parseInt(match[1], 10) : 0;
         })
-        .filter(n => n > 0);
+        .filter(n => n > 0 && n < 1000000); // Filter out timestamp-based IDs (which are > 1 trillion)
 
       // Get max number and increment
       const maxNumber = taskNumbers.length > 0 ? Math.max(...taskNumbers) : 0;
@@ -330,7 +330,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const newTask = { ...task, id: getNextTaskId() };
     setTasks(prev => [...prev, newTask]);
-    if (USE_GOOGLE_SHEETS) googleSheetService.saveTask(newTask);
+
+    if (USE_GOOGLE_SHEETS) {
+      googleSheetService.saveTask(newTask);
+    }
   };
   const updateTask = (task: Task) => {
     setTasks(prev => prev.map(t => t.id === task.id ? task : t));

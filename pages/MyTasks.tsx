@@ -122,14 +122,62 @@ export const MyTasks: React.FC = () => {
         setIsExecuteModalOpen(true);
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const compressImage = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 600;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.5 quality
+                    let dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+
+                    // If still too big (>45k), compress more
+                    if (dataUrl.length > 45000) {
+                        dataUrl = canvas.toDataURL('image/jpeg', 0.2);
+                    }
+                    resolve(dataUrl);
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setExecuteData(prev => ({ ...prev, attachment: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressedBase64 = await compressImage(file);
+                setExecuteData(prev => ({ ...prev, attachment: compressedBase64 }));
+            } catch (error) {
+                console.error("Image compression failed", error);
+                alert("Failed to process image. Please try a smaller file.");
+            }
         }
     };
 
@@ -137,11 +185,12 @@ export const MyTasks: React.FC = () => {
         if (!activeTask) return;
 
         let newStatus = activeTask.status;
+        let newApprovalStatus = activeTask.approvalStatus;
 
         // Logic requested:
         // Time In only -> PENDING
         // Time In + Out -> ONGOING
-        // Time In + Out + Attachment -> COMPLETED
+        // Time In + Out + Attachment -> COMPLETED + AUTO APPROVED
 
         if (executeData.timeIn && !executeData.timeOut) {
             newStatus = TaskStatus.PENDING;
@@ -149,6 +198,7 @@ export const MyTasks: React.FC = () => {
             newStatus = TaskStatus.ONGOING;
         } else if (executeData.timeIn && executeData.timeOut && executeData.attachment) {
             newStatus = TaskStatus.COMPLETED;
+            newApprovalStatus = 'APPROVED'; // Auto-approve per user request
         }
 
         updateTask({
@@ -156,7 +206,8 @@ export const MyTasks: React.FC = () => {
             timeIn: executeData.timeIn,
             timeOut: executeData.timeOut,
             attachment: executeData.attachment,
-            status: newStatus
+            status: newStatus,
+            approvalStatus: newApprovalStatus
         });
 
         setIsExecuteModalOpen(false);

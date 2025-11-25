@@ -159,9 +159,17 @@ export const AdminTasks: React.FC = () => {
         });
     }, [tasks, usersList]);
 
+    const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
+    const [viewTask, setViewTask] = useState<any | null>(null);
+
+    const openAttachmentModal = (task: any) => {
+        setViewTask(task);
+        setIsAttachmentModalOpen(true);
+    };
+
     return (
         <div className="w-full print-content">
-            {/* Controls - No Print */}
+            {/* ... (existing controls) ... */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 no-print">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800">Task Monitoring</h2>
@@ -175,10 +183,11 @@ export const AdminTasks: React.FC = () => {
                 </button>
             </div>
 
-            {/* MAIN PRINTABLE AREA */}
+            {/* ... (rest of the component) ... */}
             <div className="space-y-6">
+                {/* ... (headers, summary cards, charts) ... */}
 
-                {/* Print Only Header - Enhanced with Colors */}
+                {/* Print Only Header */}
                 <div className="hidden print:block pdf-header mb-6">
                     <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -352,9 +361,12 @@ export const AdminTasks: React.FC = () => {
                                             </td>
                                             <td className="p-3 text-center">
                                                 {task.attachment ? (
-                                                    <a href={task.attachment} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-[10px] font-bold">
+                                                    <button
+                                                        onClick={() => openAttachmentModal(task)}
+                                                        className="text-blue-600 hover:underline text-[10px] font-bold cursor-pointer"
+                                                    >
                                                         View
-                                                    </a>
+                                                    </button>
                                                 ) : (
                                                     <span className="text-slate-300">-</span>
                                                 )}
@@ -391,6 +403,78 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
             </div>
+
+            {/* ATTACHMENT DETAIL MODAL */}
+            {isAttachmentModalOpen && viewTask && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm p-4 no-print">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-scale-in">
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex justify-between items-center">
+                            <h3 className="text-white font-bold flex items-center gap-2"><Eye size={20} /> Task Evidence Detail</h3>
+                            <button onClick={() => setIsAttachmentModalOpen(false)} className="text-white/80 hover:text-white"><X size={20} /></button>
+                        </div>
+                        <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                            {/* Task Info */}
+                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <h4 className="font-bold text-slate-800 text-lg mb-2">{viewTask.title}</h4>
+                                <p className="text-sm text-slate-600 mb-3">{viewTask.description}</p>
+
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Supervisor:</span>
+                                        <p className="text-slate-700 font-bold">{viewTask.supervisorName}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Principle:</span>
+                                        <p className="text-slate-700 font-bold">{viewTask.principle}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Task Date:</span>
+                                        <p className="text-slate-700">
+                                            {viewTask.taskDate ? new Date(viewTask.taskDate).toLocaleDateString('id-ID', {
+                                                day: '2-digit', month: 'long', year: 'numeric'
+                                            }) : '-'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 font-semibold">Status:</span>
+                                        <p>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold inline-block mt-1
+                                                ${viewTask.status === TaskStatus.COMPLETED ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                                    viewTask.status === TaskStatus.PENDING ? 'bg-orange-50 text-orange-700 border border-orange-200' :
+                                                        viewTask.status === TaskStatus.ONGOING ? 'bg-purple-50 text-purple-700 border border-purple-200' :
+                                                            'bg-slate-50 text-slate-500 border border-slate-200'
+                                                }`}>
+                                                {viewTask.status}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Photo Evidence */}
+                            <div>
+                                <h5 className="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                    <Eye size={18} /> Photo Evidence
+                                </h5>
+                                <div className="w-full bg-slate-100 rounded-lg overflow-hidden border-2 border-slate-200">
+                                    {viewTask.attachment ? (
+                                        <img
+                                            src={viewTask.attachment}
+                                            alt="Task Evidence"
+                                            className="w-full h-auto object-contain max-h-96"
+                                        />
+                                    ) : (
+                                        <div className="p-8 text-center text-slate-400">
+                                            <Eye size={48} className="mx-auto mb-2 opacity-30" />
+                                            <p>No photo attached</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
