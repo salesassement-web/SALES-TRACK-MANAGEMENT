@@ -248,7 +248,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // --- CRUD Operations ---
   const addUser = (user: Omit<User, 'id'>) => {
-    const newUser = { ...user, id: `U${Date.now()}` };
+    // Generate sequential ID: U01, U02, U03, etc.
+    const getNextUserId = (): string => {
+      if (usersList.length === 0) return 'U01';
+      const userNumbers = usersList
+        .map(u => {
+          const match = u.id.match(/^U(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(n => n > 0);
+      const maxNumber = userNumbers.length > 0 ? Math.max(...userNumbers) : 0;
+      return `U${(maxNumber + 1).toString().padStart(2, '0')}`;
+    };
+    const newUser = { ...user, id: getNextUserId() };
     setUsersList(prev => [...prev, newUser]);
     if (USE_GOOGLE_SHEETS) googleSheetService.saveUser(newUser);
   };
@@ -261,7 +273,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (USE_GOOGLE_SHEETS) googleSheetService.deleteUser(id);
   };
   const addSalesPerson = (sales: Omit<SalesPerson, 'id'>) => {
-    const newSales = { ...sales, id: `S${Date.now()}` };
+    // Generate sequential ID: S01, S02, S03, etc.
+    const getNextSalesId = (): string => {
+      if (salesList.length === 0) return 'S01';
+      const salesNumbers = salesList
+        .map(s => {
+          const match = s.id.match(/^S(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(n => n > 0);
+      const maxNumber = salesNumbers.length > 0 ? Math.max(...salesNumbers) : 0;
+      return `S${(maxNumber + 1).toString().padStart(2, '0')}`;
+    };
+    const newSales = { ...sales, id: getNextSalesId() };
     setSalesList(prev => [...prev, newSales]);
     if (USE_GOOGLE_SHEETS) googleSheetService.saveSalesPerson(newSales);
   };
@@ -284,7 +308,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (USE_GOOGLE_SHEETS) googleSheetService.deletePrinciple(name);
   };
   const addTask = (task: Omit<Task, 'id'>) => {
-    const newTask = { ...task, id: `T${Date.now()}` };
+    // Generate sequential ID: T01, T02, T03, etc.
+    const getNextTaskId = (): string => {
+      if (tasks.length === 0) return 'T01';
+
+      // Extract numeric part from existing task IDs
+      const taskNumbers = tasks
+        .map(t => {
+          const match = t.id.match(/^T(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(n => n > 0);
+
+      // Get max number and increment
+      const maxNumber = taskNumbers.length > 0 ? Math.max(...taskNumbers) : 0;
+      const nextNumber = maxNumber + 1;
+
+      // Format with leading zeros (minimum 2 digits)
+      return `T${nextNumber.toString().padStart(2, '0')}`;
+    };
+
+    const newTask = { ...task, id: getNextTaskId() };
     setTasks(prev => [...prev, newTask]);
     if (USE_GOOGLE_SHEETS) googleSheetService.saveTask(newTask);
   };
